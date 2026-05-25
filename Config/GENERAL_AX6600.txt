@@ -167,33 +167,43 @@ CONFIG_PACKAGE_skb_recycler=n
 # 调整网络参数
 CONFIG_PACKAGE_kmod-tcp-bbr=y
 
-# ======== 1. 满血复活 Docker 全家桶 ========
-CONFIG_PACKAGE_luci-app-dockerman=y
+# Docker
 CONFIG_PACKAGE_dockerd=y
 CONFIG_PACKAGE_docker-compose=y
-# 必须强行开启 veth 虚拟网卡驱动，否则 dockerd 会编译失败
+CONFIG_PACKAGE_luci-app-dockerman=y
+CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
 CONFIG_PACKAGE_kmod-veth=y
 
-# ======== 2. 注入 PassWall 科学全家桶 ========
+# PassWall
 CONFIG_PACKAGE_luci-app-passwall=y
-# 勾选 PassWall 核心的内核网络加速
+CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y
 CONFIG_PACKAGE_kmod-nft-tproxy=y
 CONFIG_PACKAGE_kmod-nft-socket=y
 CONFIG_PACKAGE_kmod-tun=y
-# 勾选科学上网的核心二进制程序（根据你的需求，这里默认帮你勾选主流的 Xray 和 Sing-box）
 CONFIG_PACKAGE_xray-core=y
-CONFIG_PACKAGE_sing-box=y
 
-# ======== 3. 补充完善亚瑟的 54G 物理分区自动扩容组件 ========
+# 雅典娜物理分区自动扩容组件
 CONFIG_PACKAGE_kmod-fs-ext4=y
 CONFIG_PACKAGE_block-mount=y
 CONFIG_PACKAGE_resize2fs=y
 CONFIG_PACKAGE_tune2fs=y
-# 建议加上这个插件，它会在网页端生成一个“分区扩容”按钮，方便你一键把 54G 物理空间吃进去
 CONFIG_PACKAGE_luci-app-partexp=y
 
-# ======== 4. 强制补齐所有界面的简体中文语言包 ========
+# 简体中文语言包
 CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
 CONFIG_PACKAGE_luci-i18n-firewall-zh-cn=y
-CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
-CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y
+
+# Argon主题
+CONFIG_PACKAGE_luci-theme-argon=y
+CONFIG_PACKAGE_luci-i18n-argon-zh-cn=y
+# CONFIG_PACKAGE_luci-theme-bootstrap is not set
+
+# FileBrowser
+CONFIG_PACKAGE_filebrowser=y
+CONFIG_PACKAGE_luci-app-filebrowser=y
+CONFIG_PACKAGE_luci-i18n-filebrowser-zh-cn=y
+
+# AdGuard Home
+CONFIG_PACKAGE_adguardhome=y
+CONFIG_PACKAGE_luci-app-adguardhome=y
+CONFIG_PACKAGE_luci-i18n-adguardhome-zh-cn=y

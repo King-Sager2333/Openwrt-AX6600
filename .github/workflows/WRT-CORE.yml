@@ -244,7 +244,7 @@ jobs:
       - name: Release Firmware
         uses: softprops/action-gh-release@master
         with:
-          tag_name: ${{ env.WRT_CONFIG }}-${{ env.WRT_INFO }}-${{ env.WRT_BRANCH }}-${{ env.WRT_DATE }}
+          tag_name: ${{ env.WRT_NAME }}-${{ env.WRT_INFO }}-${{ env.WRT_BRANCH }}-${{ env.WRT_DATE }}
           files: ./wrt/upload/*.*
           body: |
             📦 OpenWrt 自动编译固件（AX6600 / IPQ6010）

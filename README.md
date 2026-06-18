@@ -16,12 +16,11 @@
 - **luci-app-arpbind**: IP/MAC 绑定工具界面。
 - **luci-app-athena-led**: 专为雅典娜定制的 LED 点阵屏控制插件。
 - **luci-app-autoreboot**: 定时重启插件，可配置路由器定时重启以保持性能。
-- **luci-app-diskman / luci-i18n-diskman-zh-cn**: 磁盘管理工具界面，用于格式化和挂载磁盘。
 - **luci-app-dockerman / luci-i18n-dockerman-zh-cn**: Docker 容器管理 Web 界面。
 - **luci-app-filebrowser-go / luci-i18n-filebrowser-go-zh-cn**: FileBrowser 的 Web 界面，提供基于网页的文件管理服务。
+- **luci-app-airplay2 / luci-i18n-airplay2-zh-cn**: AirPlay 2 接收端插件，使路由器支持 Apple 设备的音频投屏。
 - **luci-app-firewall4**: 防火墙 (Firewall4) 控制界面。
 - **luci-app-mountd**: 自动挂载工具的 Web 界面。
-- **luci-app-netspeedtest**: 网络测速插件，支持测速节点测试。
 - **luci-app-partexp**: 物理分区一键扩容插件，非常适合雅典娜这类带有大内置存储的设备。
 - **luci-app-passwall / luci-i18n-passwall-zh-cn**: 强大的网络代理客户端，支持丰富的代理协议。
 - **luci-app-samba4**: SMB 网络共享插件界面，用于局域网文件共享。
@@ -37,7 +36,6 @@
 - **kmod-qca-nss-drv-pppoe**: NSS PPPoE 拨号硬件加速驱动。
 - **kmod-qca-nss-drv-qdisc**: NSS 队列调度硬件加速驱动。
 - **kmod-qca-nss-drv-vlan-mgr**: NSS VLAN 管理驱动。
-- **kmod-tcp-bbr**: 开启 BBR 拥塞控制算法，优化 TCP 网络传输速度。
 
 ### 🔌 USB、网络与外设驱动 (USB, Network & Peripherals)
 - **kmod-usb-core / kmod-usb3 / kmod-usb-dwc3 / kmod-usb-xhci**: USB 核心支持和 USB 3.0 / XHCI 驱动。
@@ -74,6 +72,7 @@
 - **iptasn**: ASN（自治系统号）处理相关工具。
 - **kmod-dsa**: 分布式交换机架构支持。
 - **kmod-inet-diag**: 网络连接诊断相关内核模块。
+- **shairport-sync-openssl**: Shairport Sync AirPlay 2 服务核心。
 
 ### 🐳 Docker 容器服务 (Docker)
 - **dockerd / docker-compose**: Docker 引擎核心守护进程及容器编排编配工具，使路由器具备运行 Linux 容器的能力。

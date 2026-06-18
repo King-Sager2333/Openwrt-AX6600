@@ -64,7 +64,7 @@ jobs:
       - name: Checkout Projects
         uses: actions/checkout@main
 
-      - name: Initialization Environment
+      - name: Initialization Environment # 初始化Ubuntu编译环境，安装依赖项
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
@@ -93,7 +93,7 @@ jobs:
           echo "WRT_KVER=none" >> $GITHUB_ENV
           echo "WRT_LIST=none" >> $GITHUB_ENV
 
-      - name: Clone Code
+      - name: Clone Code # 从配置的源码仓库拉取OpenWrt源码
         run: |
           git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
 
@@ -145,7 +145,7 @@ jobs:
             echo "caches cleanup done!"
           fi
 
-      - name: Update Feeds
+      - name: Update Feeds # 更新并安装OpenWrt插件包管理工具(Feeds)中的包
         run: |
           cd ./wrt/
 
@@ -184,7 +184,7 @@ jobs:
 
           make download -j$(nproc)
 
-      - name: Compile Firmware
+      - name: Compile Firmware # 核心编译阶段，利用所有CPU核心进行固件构建
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/

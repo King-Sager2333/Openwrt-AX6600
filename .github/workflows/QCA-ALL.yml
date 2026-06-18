@@ -11,6 +11,7 @@ on:
   #手动编译
   workflow_dispatch:
     inputs:
+      # 手动输入要在编译时集成的插件包名称，多个请用回车换行分隔
       PACKAGE:
         description: '手动调整插件包，多个请用\n符号隔开。'
         required: false
@@ -43,7 +44,6 @@ jobs:
       #编译配置
       WRT_CONFIG: ${{matrix.CONFIG}}
       #默认主题
-      #WRT_THEME: aurora
       WRT_THEME: argon
       #默认主机名
       WRT_NAME: OWRT

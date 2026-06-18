@@ -61,7 +61,7 @@ UPDATE_VERSION() {
 
 	for PKG_FILE in $PKG_FILES; do
 		local PKG_REPO=$(grep -Po "PKG_SOURCE_URL:=https://.*github.com/\K[^/]+/[^/]+(?=.*)" $PKG_FILE)
-		local PKG_TAG=$(curl -sL "https://api.github.com/repos/$PKG_REPO/releases" | jq -r "map(select(.prerelease == $PKG_MARK)) | first | .tag_name")
+		local PKG_TAG=$(curl -sL "https://api.github.com/repos/$PKG_REPO/releases" | jq -r --argjson mark "$PKG_MARK" 'map(select(.prerelease == $mark)) | first | .tag_name')
 
 		local OLD_VER=$(grep -Po "PKG_VERSION:=\K.*" "$PKG_FILE")
 		local OLD_URL=$(grep -Po "PKG_SOURCE_URL:=\K.*" "$PKG_FILE")
@@ -81,6 +81,8 @@ UPDATE_VERSION() {
 			echo "$PKG_FILE version has been updated!"
 		else
 			echo "$PKG_FILE version is already the latest!"
+		fi
+	done
 }
 
 #UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"

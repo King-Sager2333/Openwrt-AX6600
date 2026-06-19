@@ -101,3 +101,6 @@ UPDATE_VERSION() {
 		fi
 	done
 }
+
+# 复制自定义插件到 OpenWrt 包目录
+cp -r $GITHUB_WORKSPACE/package/luci-app-netmonitor ./

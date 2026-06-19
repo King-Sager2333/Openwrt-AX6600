@@ -4,14 +4,8 @@ apply_sed_to_matches() {
 	local SEARCH_DIR=$1
 	local FILE_NAME=$2
 	local SED_EXPR=$3
-	local MATCHES
 
-	MATCHES=$(find "$SEARCH_DIR" -type f -name "$FILE_NAME" 2>/dev/null)
-	if [ -n "$MATCHES" ]; then
-		while IFS= read -r TARGET_FILE; do
-			sed -i "$SED_EXPR" "$TARGET_FILE"
-		done <<< "$MATCHES"
-	fi
+	find "$SEARCH_DIR" -type f -name "$FILE_NAME" -exec sed -i "$SED_EXPR" {} + 2>/dev/null
 }
 
 #移除luci-app-attendedsysupgrade

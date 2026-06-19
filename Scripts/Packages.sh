@@ -46,7 +46,6 @@ UPDATE_PACKAGE() {
 # UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master" "" "luci-app-appfilter oaf" 这样会把原有的open-app-filter，luci-app-appfilter，oaf相关组件删除，不会出现coremark错误。
 
 # 自动检测并更新指定软件包到 GitHub 最新 Release 版本
-# 自动检测并更新指定软件包到 GitHub 最新 Release 版本
 UPDATE_VERSION() {
 	local PKG_NAME=$1
 	local PKG_MARK=${2:-false}
@@ -85,5 +84,5 @@ UPDATE_VERSION() {
 	done
 }
 
-#UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"
-#UPDATE_VERSION "sing-box"
+# 调用示例
+# UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"

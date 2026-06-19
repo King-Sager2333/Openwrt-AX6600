@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Escape strings for sed replacement string
+escape_string() {
+	local str="$1"
+	# Escape characters special to sed replacement string (\, /, &)
+	str="${str//\\/\\\\}"
+	str="${str//\//\\/}"
+	str="${str//&/\\&}"
+	printf "%s" "$str"
+}
+
 apply_sed_to_matches() {
 	local SEARCH_DIR=$1
 	local FILE_NAME=$2
@@ -18,23 +28,31 @@ apply_sed_to_matches() {
 apply_sed_to_matches "./feeds/luci/collections/" "Makefile" "/attendedsysupgrade/d"
 #sed -i "s/luci-theme-.*$/luci-theme-bootstrap/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
 
+# Safe variables for sed injections
+SAFE_WRT_IP=$(escape_string "$WRT_IP")
+SAFE_WRT_MARK=$(escape_string "$WRT_MARK")
+SAFE_WRT_DATE=$(escape_string "$WRT_DATE")
+SAFE_WRT_SSID=$(escape_string "$WRT_SSID")
+SAFE_WRT_WORD=$(escape_string "$WRT_WORD")
+SAFE_WRT_NAME=$(escape_string "$WRT_NAME")
+
 # 修改固件后台默认入口IP地址，防止冲突
-apply_sed_to_matches "./feeds/luci/modules/luci-mod-system/" "flash.js" "s/192\\.168\\.[0-9]*\\.[0-9]*/$WRT_IP/g"
+apply_sed_to_matches "./feeds/luci/modules/luci-mod-system/" "flash.js" "s/192\\.168\\.[0-9]*\\.[0-9]*/$SAFE_WRT_IP/g"
 # 在固件状态页底部添加编译时间和作者标识
-apply_sed_to_matches "./feeds/luci/modules/luci-mod-status/" "10_system.js" "s/(\\(luciversion || ''\\))/(\\1) + (' \\/ $WRT_MARK-$WRT_DATE')/g"
+apply_sed_to_matches "./feeds/luci/modules/luci-mod-status/" "10_system.js" "s/(\\(luciversion || ''\\))/(\\1) + (' \\/ $SAFE_WRT_MARK-$SAFE_WRT_DATE')/g"
 
 WIFI_SH=$(find ./target/linux/{mediatek/filogic,qualcommax}/base-files/etc/uci-defaults/ -type f -name "*set-wireless.sh" 2>/dev/null)
 WIFI_UC="./package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
 if [ -f "$WIFI_SH" ]; then
 	#修改WIFI名称
-	sed -i "s/BASE_SSID='.*'/BASE_SSID='$WRT_SSID'/g" "$WIFI_SH"
+	sed -i "s/BASE_SSID='.*'/BASE_SSID='$SAFE_WRT_SSID'/g" "$WIFI_SH"
 	#修改WIFI密码
-	sed -i "s/BASE_WORD='.*'/BASE_WORD='$WRT_WORD'/g" "$WIFI_SH"
+	sed -i "s/BASE_WORD='.*'/BASE_WORD='$SAFE_WRT_WORD'/g" "$WIFI_SH"
 elif [ -f "$WIFI_UC" ]; then
 	#修改WIFI名称
-	sed -i "s/ssid='.*'/ssid='$WRT_SSID'/g" $WIFI_UC
+	sed -i "s/ssid='.*'/ssid='$SAFE_WRT_SSID'/g" $WIFI_UC
 	#修改WIFI密码
-	sed -i "s/key='.*'/key='$WRT_WORD'/g" $WIFI_UC
+	sed -i "s/key='.*'/key='$SAFE_WRT_WORD'/g" $WIFI_UC
 	#修改WIFI地区
 	sed -i "s/country='.*'/country='US'/g" $WIFI_UC
 	#修改WIFI加密
@@ -43,9 +61,9 @@ fi
 
 CFG_FILE="./package/base-files/files/bin/config_generate"
 # 替换源码基础文件中的默认IP
-sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" "$CFG_FILE"
+sed -i "s/192\.168\.[0-9]*\.[0-9]*/$SAFE_WRT_IP/g" "$CFG_FILE"
 # 设置路由器主机名 (hostname)
-sed -i "s/hostname='.*'/hostname='$WRT_NAME'/g" "$CFG_FILE"
+sed -i "s/hostname='.*'/hostname='$SAFE_WRT_NAME'/g" "$CFG_FILE"
 
 #配置文件修改
 echo "CONFIG_PACKAGE_luci=y" >> ./.config

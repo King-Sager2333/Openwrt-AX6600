@@ -67,7 +67,6 @@ CONFIG_PACKAGE_kmod-nft-queue=n
 CONFIG_PACKAGE_kmod-nft-socket=y
 CONFIG_PACKAGE_kmod-nft-tproxy=y
 CONFIG_PACKAGE_kmod-nft-xfrm=y
-
 CONFIG_PACKAGE_kmod-sound-core=y
 CONFIG_PACKAGE_kmod-tun=y
 CONFIG_PACKAGE_kmod-usb3=y
@@ -101,7 +100,6 @@ CONFIG_PACKAGE_kmod-usb-storage-uas=y
 CONFIG_PACKAGE_kmod-usb-uhci=n
 CONFIG_PACKAGE_kmod-usb-xhci=y
 #不用 Docker / Podman → 可关
-
 CONFIG_PACKAGE_kmod-veth=y
 CONFIG_PACKAGE_kmod-wireguard=y
 CONFIG_PACKAGE_kmod-mmc=y
@@ -168,41 +166,31 @@ CONFIG_PACKAGE_luci-app-wireless-regdb=y
 CONFIG_PACKAGE_skb_recycler=n
 
 
-# AirPlay
-CONFIG_PACKAGE_shairport-sync-openssl=y
+# --- 用户请求的插件开始 ---
+# AirPlay 2 插件及中文语言包
 CONFIG_PACKAGE_luci-app-airplay2=y
 CONFIG_PACKAGE_luci-i18n-airplay2-zh-cn=y
 
-# FileBrowser
-CONFIG_PACKAGE_filebrowser=y
-CONFIG_PACKAGE_luci-app-filebrowser-go=y
-CONFIG_PACKAGE_luci-i18n-filebrowser-go-zh-cn=y
+# FileBrowser 插件及中文语言包
+CONFIG_PACKAGE_luci-app-filebrowser=y
+CONFIG_PACKAGE_luci-i18n-filebrowser-zh-cn=y
 
-# PassWall
+# passwall 插件及中文语言包
 CONFIG_PACKAGE_luci-app-passwall=y
 CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y
-CONFIG_PACKAGE_kmod-nft-tproxy=y
-CONFIG_PACKAGE_kmod-nft-socket=y
-CONFIG_PACKAGE_kmod-tun=y
-CONFIG_PACKAGE_xray-core=y
 
-# Athena LED
-CONFIG_PACKAGE_luci-app-athena-led=y
-CONFIG_PACKAGE_athena-led-control=y
-
-# AdGuard Home
-CONFIG_PACKAGE_adguardhome=y
+# AdGuard Home 插件及中文语言包
 CONFIG_PACKAGE_luci-app-adguardhome=y
 CONFIG_PACKAGE_luci-i18n-adguardhome-zh-cn=y
 
-# Dockerman
-CONFIG_PACKAGE_dockerd=y
-CONFIG_PACKAGE_docker-compose=y
+# Dockerman 插件及中文语言包
 CONFIG_PACKAGE_luci-app-dockerman=y
 CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
 
-
-# Argon
+# Argon 主题
 CONFIG_PACKAGE_luci-theme-argon=y
+CONFIG_PACKAGE_luci-app-argon-config=y
+CONFIG_PACKAGE_luci-i18n-argon-config-zh-cn=y
+# --- 用户请求的插件结束 ---
 CONFIG_PACKAGE_luci-i18n-argon-zh-cn=y
 CONFIG_PACKAGE_luci-app-netmonitor=y

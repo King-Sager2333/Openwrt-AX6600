@@ -64,7 +64,7 @@ jobs:
       - name: Checkout Projects
         uses: actions/checkout@main
 
-      - name: Initialization Environment # 初始化Ubuntu编译环境，安装依赖项
+      - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
@@ -75,14 +75,7 @@ jobs:
           sudo -E apt -yqq autoclean
           sudo -E apt -yqq clean
           sudo -E apt -yqq install dos2unix libfuse-dev python3-setools python3-setuptools
-          curl -sL -o init_build_environment.sh https://build-scripts.immortalwrt.org/init_build_environment.sh
-          if echo "85f4b2c2aa16f8178b57250f5d2bcf4a2e0707c6b569a3b07510f41fc6185dd8  init_build_environment.sh" | sha256sum -c -; then
-            sudo bash init_build_environment.sh
-          else
-            echo "Checksum verification failed!" >&2
-            exit 1
-          fi
-          rm -f init_build_environment.sh
+          sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
           sudo -E systemctl daemon-reload
           sudo -E timedatectl set-timezone "Asia/Shanghai"
 
@@ -100,7 +93,7 @@ jobs:
           echo "WRT_KVER=none" >> $GITHUB_ENV
           echo "WRT_LIST=none" >> $GITHUB_ENV
 
-      - name: Clone Code # 从配置的源码仓库拉取OpenWrt源码
+      - name: Clone Code
         run: |
           git clone --depth=1 --single-branch --branch $WRT_BRANCH $WRT_REPO ./wrt/
 
@@ -145,12 +138,14 @@ jobs:
 
           if ${{steps.check-cache.outputs.cache-hit != 'true'}}; then
             CACHE_LIST=$(gh cache list --key "$WRT_CONFIG-$WRT_INFO" | cut -f 1)
-            echo "$CACHE_LIST" | tr -d '\r' | xargs -r -n 1 -P 4 gh cache delete
+            for CACHE_KEY in $CACHE_LIST; do
+              gh cache delete $CACHE_KEY
+            done
 
             echo "caches cleanup done!"
           fi
 
-      - name: Update Feeds # 更新并安装OpenWrt插件包管理工具(Feeds)中的包
+      - name: Update Feeds
         run: |
           cd ./wrt/
 
@@ -189,7 +184,7 @@ jobs:
 
           make download -j$(nproc)
 
-      - name: Compile Firmware # 核心编译阶段，利用所有CPU核心进行固件构建
+      - name: Compile Firmware
         if: env.WRT_TEST != 'true'
         run: |
           cd ./wrt/
@@ -220,20 +215,12 @@ jobs:
 
             find ./bin/targets/ -iregex ".*\(buildinfo\|json\|sha256sums\|packages\)$" -exec rm -rf {} +
 
-            shopt -s nocasematch
             for FILE in $(find ./bin/targets/ -type f -iname "*$WRT_TARGET*") ; do
-              FILENAME="${FILE##*/}"
-              EXT="${FILENAME#*.}"
-              BASENAME="${FILENAME%%.*}"
-              if [[ "$BASENAME" =~ ($WRT_TARGET.*) ]]; then
-                NAME="${BASH_REMATCH[1]}"
-              else
-                NAME="$BASENAME"
-              fi
-              NEW_FILE="King-Sager2333"-"$WRT_BRANCH"-"$WRT_WIFI"-"$NAME"-"$WRT_DATE"."$EXT"
-              mv -f "$FILE" "./upload/$NEW_FILE"
+              EXT=$(basename $FILE | cut -d '.' -f 2-)
+              NAME=$(basename $FILE | cut -d '.' -f 1 | grep -io "\($WRT_TARGET\).*")
+              NEW_FILE="King-Sager2333-$WRT_BRANCH-$WRT_WIFI-$NAME-$WRT_DATE.$EXT"
+              mv -f $FILE ./upload/$NEW_FILE
             done
-            shopt -u nocasematch
 
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
 

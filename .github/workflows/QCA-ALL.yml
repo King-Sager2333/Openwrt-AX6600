@@ -4,14 +4,9 @@ name: QCA-ALL
 #CI计划
 on:
   #自动编译：当Auto-Clean运行完成后
-  workflow_run:
-    workflows: ["Auto-Clean"]
-    types:
-      - completed
   #手动编译
   workflow_dispatch:
     inputs:
-      # 手动输入要在编译时集成的插件包名称，多个请用回车换行分隔
       PACKAGE:
         description: '手动调整插件包，多个请用\n符号隔开。'
         required: false
@@ -52,7 +47,7 @@ jobs:
       #默认WIFI名称
       WRT_SSID: OWRT
       #默认WIFI密码
-      WRT_WORD: ${{ secrets.WRT_WORD }}
+      WRT_WORD: 12345678
       #默认地址
       WRT_IP: 192.168.10.1
       #默认密码，仅作提示，修改无用

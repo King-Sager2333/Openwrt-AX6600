@@ -1,0 +1,22 @@
+{
+    "luci-app-netmonitor": {
+        "description": "Grant access to netmonitor ubus rpc",
+        "read": {
+            "ubus": {
+                "netmonitor": [
+                    "get_connections",
+                    "get_logs"
+                ]
+            }
+        },
+        "write": {
+            "ubus": {
+                "netmonitor": [
+                    "disconnect",
+                    "start_capture",
+                    "stop_capture"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,38 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8"
+
+msgid "Deep Connection Monitor"
+msgstr "深度连接管理"
+
+msgid "Host"
+msgstr "主机"
+
+msgid "Target Address"
+msgstr "目标地址"
+
+msgid "Target IP"
+msgstr "目标 IP"
+
+msgid "Type"
+msgstr "类型"
+
+msgid "TTL/Timeout"
+msgstr "剩余超时时间"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Disconnect"
+msgstr "断开"
+
+msgid "Real-time Capture"
+msgstr "实时抓包"
+
+msgid "Pause Refresh"
+msgstr "暂停刷新"
+
+msgid "Resume Refresh"
+msgstr "恢复刷新"
+
+msgid "Debug Log"
+msgstr "调试日志"

@@ -1,0 +1,12 @@
+{
+    "admin/network/netmonitor": {
+        "title": "Deep Connection Monitor",
+        "action": {
+            "type": "view",
+            "path": "netmonitor/index"
+        },
+        "depends": {
+            "acl": [ "luci-app-netmonitor" ]
+        }
+    }
+}

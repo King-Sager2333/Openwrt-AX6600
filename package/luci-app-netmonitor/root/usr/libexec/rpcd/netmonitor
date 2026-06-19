@@ -1,0 +1,219 @@
+#!/bin/sh
+# 这是一个基于 rpcd (ubus) 的后端服务脚本，用于 netmonitor 插件
+# 提供获取连接列表、断开连接、抓包控制等 API
+
+. /lib/functions.sh
+
+# 临时存放抓包进程 PID 和日志的文件
+CAP_PID_FILE="/tmp/netmonitor_cap.pid"
+CAP_LOG_FILE="/tmp/netmonitor_cap.log"
+# 存放解析出的域名的缓存文件
+DOMAIN_CACHE="/tmp/netmonitor_domain_cache"
+
+# 将输出转为 JSON 格式的函数
+json_start() {
+    echo "{"
+}
+json_end() {
+    echo "}"
+}
+
+# ubus 服务所需的方法声明
+case "$1" in
+    list)
+        # 声明提供的 ubus 方法和它们的参数
+        echo '{
+            "get_connections": {},
+            "disconnect": { "src": "string", "dst": "string", "sport": "string", "dport": "string", "proto": "string" },
+            "start_capture": {},
+            "stop_capture": {},
+            "get_logs": { "offset": "integer" }
+        }'
+        exit 0
+        ;;
+    call)
+        case "$2" in
+            get_connections)
+                # 获取连接列表的逻辑
+                # 读取 DHCP 租约，用于获取主机名
+                LEASES=$(cat /tmp/dhcp.leases 2>/dev/null)
+
+                # 读取 conntrack 连接，提取 ipv4 的记录（大部分家用情况追踪ipv4为主）
+                CONNTRACK=$(cat /proc/net/nf_conntrack 2>/dev/null | grep '^ipv4')
+
+                # 初始化一个空数组，用 awk 拼接 JSON 输出
+                # 我们需要在 awk 中解析每一行 conntrack，提取源 IP、目的 IP、源端口、目的端口、状态、存活时间等
+                json_start
+                echo '"connections": ['
+
+                # 读取缓存文件以避免重复 I/O
+                DOMAIN_CACHE_DATA=$(cat /tmp/netmonitor_domain_cache 2>/dev/null)
+
+                echo "$CONNTRACK" | awk -v leases="$LEASES" -v domain_cache="$DOMAIN_CACHE_DATA" '
+                BEGIN {
+                    # 将 leases 存入数组方便查询，格式：IP -> Hostname
+                    n = split(leases, lines, "\n")
+                    for (i=1; i<=n; i++) {
+                        split(lines[i], fields, " ")
+                        if (fields[3] != "" && fields[4] != "") {
+                            hostnames[fields[3]] = fields[4]
+                        }
+                    }
+
+                    # 将 domain_cache 存入数组，格式：dst_ip -> domain
+                    n2 = split(domain_cache, lines2, "\n")
+                    for (i=1; i<=n2; i++) {
+                        split(lines2[i], fields2, " ")
+                        if (fields2[1] != "" && fields2[2] != "") {
+                            domains[fields2[1]] = fields2[2]
+                        }
+                    }
+
+                    first = 1
+                }
+                {
+                    # nf_conntrack 格式通常为：
+                    # ipv4 2 tcp 6 117 TIME_WAIT src=... dst=... sport=... dport=...
+                    # ipv4 2 udp 17 29 src=... dst=... sport=... dport=...
+
+                    # 第 3 个字段是协议名称 (tcp/udp)
+                    proto = $3
+
+                    if (proto == "tcp") {
+                        # TCP 在 nf_conntrack 中，第 5 个字段是 timeout，第 6 个字段是状态
+                        timeout = $5
+                        status = $6
+                    } else if (proto == "udp") {
+                        # UDP 没有连接状态，第 5 个字段是 timeout
+                        timeout = $5
+                        status = "UDP"
+                    } else {
+                        next
+                    }
+
+                    # 查找 src=xxx, dst=xxx, sport=xxx, dport=xxx
+                    src = ""
+                    dst = ""
+                    sport = ""
+                    dport = ""
+                    for (i=1; i<=NF; i++) {
+                        if ($i ~ /^src=/) src = substr($i, 5)
+                        if ($i ~ /^dst=/) dst = substr($i, 5)
+                        if ($i ~ /^sport=/) sport = substr($i, 7)
+                        if ($i ~ /^dport=/) dport = substr($i, 7)
+                        # 找到第一个就不再找，避免反向连接的字段被混入
+                        if (src != "" && dst != "" && sport != "" && dport != "") break
+                    }
+
+                    # 排除本地回环
+                    if (src == "127.0.0.1" || dst == "127.0.0.1") next
+
+                    # 查找主机名
+                    host = hostnames[src]
+                    if (host == "") host = src
+
+                    # 查询缓存域名
+                    target_url = domains[dst]
+                    if (target_url == "") target_url = ""
+
+                    # JSON 格式输出
+                    if (!first) printf ",\n"
+                    printf "{\"src\": \"%s\", \"host\": \"%s\", \"dst\": \"%s\", \"sport\": \"%s\", \"dport\": \"%s\", \"proto\": \"%s\", \"status\": \"%s\", \"target_url\": \"%s\", \"timeout\": \"%s\"}", src, host, dst, sport, dport, proto, status, target_url, timeout
+                    first = 0
+                }
+                END {
+                    print ""
+                }'
+
+                echo ']'
+                json_end
+                ;;
+            disconnect)
+                # 断开指定的连接
+                # 从标准输入读取参数
+                read input
+                # 解析 JSON 参数
+                src=$(echo "$input" | jsonfilter -e '@.src' 2>/dev/null)
+                dst=$(echo "$input" | jsonfilter -e '@.dst' 2>/dev/null)
+                sport=$(echo "$input" | jsonfilter -e '@.sport' 2>/dev/null)
+                dport=$(echo "$input" | jsonfilter -e '@.dport' 2>/dev/null)
+                proto=$(echo "$input" | jsonfilter -e '@.proto' 2>/dev/null)
+
+                if [ -n "$src" ] && [ -n "$dst" ] && [ -n "$sport" ] && [ -n "$dport" ] && [ -n "$proto" ]; then
+                    # 调用 conntrack 工具删除指定连接
+                    conntrack -D -p "$proto" -s "$src" -d "$dst" --sport "$sport" --dport "$dport" >/dev/null 2>&1
+                    json_start
+                    echo '"success": true'
+                    json_end
+                else
+                    json_start
+                    echo '"success": false, "error": "missing parameters"'
+                    json_end
+                fi
+                ;;
+            start_capture)
+                # 启动抓包进程
+                if [ ! -f "$CAP_PID_FILE" ] || ! kill -0 $(cat "$CAP_PID_FILE" 2>/dev/null) 2>/dev/null; then
+                    # 清空日志
+                    > "$CAP_LOG_FILE"
+                    # 在后台运行抓包脚本 (后续在 plan 中编写此脚本)
+                    /usr/share/netmonitor/capture.sh > "$CAP_LOG_FILE" 2>&1 &
+                    # 保存 PID
+                    echo $! > "$CAP_PID_FILE"
+                fi
+                json_start
+                echo '"success": true'
+                json_end
+                ;;
+            stop_capture)
+                # 停止抓包进程
+                if [ -f "$CAP_PID_FILE" ]; then
+                    PID=$(cat "$CAP_PID_FILE")
+                    # 通过 pgrep 找到由 capture.sh 发起的子进程 tcpdump 并精确定点结束
+                    TCPDUMP_PID=$(pgrep -P "$PID" tcpdump 2>/dev/null)
+                    if [ -n "$TCPDUMP_PID" ]; then
+                        kill -9 $TCPDUMP_PID 2>/dev/null
+                    fi
+                    # 终止抓包主脚本
+                    kill -9 "$PID" 2>/dev/null
+                    rm -f "$CAP_PID_FILE"
+                fi
+                json_start
+                echo '"success": true'
+                json_end
+                ;;
+            get_logs)
+                # 获取抓包日志，支持 offset 以便增量读取
+                read input
+                offset=$(echo "$input" | jsonfilter -e '@.offset' 2>/dev/null || echo 0)
+
+                # 如果没有文件，就返回空
+                if [ ! -f "$CAP_LOG_FILE" ]; then
+                    json_start
+                    echo '"logs": "", "offset": 0'
+                    json_end
+                    exit 0
+                fi
+
+                # 使用 tail -c 获取从 offset 之后的内容
+                # 加上一个很简单的 base64 编码，避免特殊字符打乱 JSON 格式
+                # 并在前端用 atob 解码
+                new_size=$(stat -c %s "$CAP_LOG_FILE" 2>/dev/null || echo 0)
+                if [ "$offset" -gt "$new_size" ]; then
+                    offset=0 # 如果文件被清空，重置 offset
+                fi
+
+                if [ "$new_size" -gt "$offset" ]; then
+                    bytes_to_read=$((new_size - offset))
+                    logs=$(tail -c +$((offset + 1)) "$CAP_LOG_FILE" | base64 | tr -d '\n')
+                else
+                    logs=""
+                fi
+
+                json_start
+                echo '"logs": "'$logs'", "offset": '$new_size
+                json_end
+                ;;
+        esac
+        ;;
+esac

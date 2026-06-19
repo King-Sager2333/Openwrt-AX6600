@@ -1,181 +1,52 @@
-# 🚀 OpenWrt AX6600 / IPQ60xx Router Firmware (Cloud Build + NSS Acceleration)
+# 🚀 OpenWrt AX6600 / IPQ60xx 固件构建项目
 
-OpenWrt / AX6600 / IPQ6010 / JDCloud RE-CS-02 / NSS / Router Firmware / Cloud Build
-> 基于 OpenWrt / ImmortalWrt 的定制固件，适配 JDCloud RE-CS-02（京东云雅典娜 AX6600），集成 NSS 硬件加速优化与 GitHub Actions 自动云编译
+基于 OpenWrt / ImmortalWrt 的定制固件，专门为 JDCloud RE-CS-02（京东云雅典娜 AX6600）打造。
 
-[👉 进入项目主页](https://github.com/ones20250/Openwrt-AX6600)
+**当前版本前缀：`King-Sager2333`**
+
+本项目主要利用 GitHub Actions 进行云端自动化编译，在原有的基础上集成了常用且强大的网络插件与工具，并优化了底层性能与内存管理策略。
+
 ---
 
 ## ⭐ 项目特点
 
-- 🔥 **云编译构建** - 基于 GitHub Actions 完全自动化编译
-- 📦 **官方支持** - 完美适配京东云雅典娜AX6600（RE-CS-02）
-- 🚀 **开箱即用** - 预装常用网络工具与插件
-- ⚡ **硬件加速** - 原生支持 NSS 硬件加速引擎
-- 🌐 **性能优化** - 显著提升 NAT/转发/吞吐性能
-- 🔄 **源码同步** - 自动跟进 OpenWrt/ImmortalWrt 最新上游
-- 🧩 **灵活定制** - 支持自定义编译配置和插件
+- 🔥 **完全云编译构建** - 通过 GitHub Actions 手动触发编译，无需在本地配置繁杂的编译环境。
+- 📦 **预装丰富的插件** - 集成了日常网络环境中常用的过滤、代理、多媒体和文件管理工具。
+- ⚡ **原生 NSS 硬件加速支持** - 显著提升路由器的数据转发与吞吐能力，降低 CPU 负载。
+- 🌐 **系统安全与性能调优** - 代码经过优化与审查，移除了冗余逻辑，提升了运行的稳定性与安全性。
+- 🧩 **全量中文支持** - 所有主要插件均附带简体中文语言包，极大地降低了使用门槛。
 
 ---
 
-## 📥 快速开始
+## 🛠️ 集成的核心插件列表
 
-### 1️⃣ 下载固件
-🎯 **[👉 点击下载最新固件](https://github.com/ones20250/Openwrt-AX6600/releases/latest)**
+以下是在固件中预先编译好的核心插件及其功能说明：
 
-所有编译产物都在 Releases 页面发布，选择最新版本下载。
-
-📦 **刷机相关文件（Bootloader / 工具 / 备用固件）**
-👉 **[点击下载刷机文件](https://github.com/ones20250/Openwrt-AX6600/releases/tag/Router-Flashing-Files)**
-
----
-
-## 🛠️ 刷机指南
-
-> ⚠️ **重要提示：** 以下操作涉及 U-Boot 和分区修改，**请务必先备份重要数据**，谨慎操作！
-
-### 详细教程
-📖 **[完整刷机图文教程 →](https://blog.waynecommand.com/post/athena-re-cs-02.html)**（推荐新手参考）
-
-### 刷机步骤
-
-1. **启用 SSH 访问**
-   - 进入旧版本固件管理后台
-   - 启用 SSH 服务
-
-2. **备份分区**（二选一）
-   - 通过 SSH 备份分区数据
-   - 或使用 TTL 串口备份（更安全）
-
-3. **刷入 U-Boot**
-   - 安装不死 U-Boot（防砖）
-   - 更新双分区 GPT 分区表
-
-4. **创建存储分区**
-   - 新建 storage 分区
-   - 恢复跑分分区数据
-
-5. **刷入固件**
-   - 从 Releases 下载最新固件
-   - 通过 U-Boot Web 界面刷入
+| 插件名称 (LuCI App) | 语言包 | 功能说明 |
+| ------------------- | ------ | -------- |
+| **AirPlay 2** (`luci-app-airplay2`) | `luci-i18n-airplay2-zh-cn` | 苹果生态无线音频投射接收端，支持让音箱变身 AirPlay 设备。 |
+| **FileBrowser** (`luci-app-filebrowser`) | `luci-i18n-filebrowser-zh-cn` | 轻量级、直观的 Web 文件管理器，方便通过浏览器直接管理路由器上的存储文件。 |
+| **Passwall** (`luci-app-passwall`) | `luci-i18n-passwall-zh-cn` | 强大的科学上网代理客户端，支持多节点、分流及高阶网络路由。 |
+| **AdGuard Home** (`luci-app-adguardhome`) | `luci-i18n-adguardhome-zh-cn` | 全局广告拦截与隐私保护工具，通过自建 DNS 服务器阻止跟踪器和广告域名。 |
+| **Dockerman** (`luci-app-dockerman`) | `luci-i18n-dockerman-zh-cn` | 可视化 Docker 容器管理工具，方便在路由器上轻松部署和管理 Docker 应用。 |
+| **Athena LED** (`luci-app-athena-led`) | 驱动自带 | 针对京东云雅典娜专属适配的点阵屏控制插件，支持自定义显示网络状态和信息。 |
+| **Argon Theme** (`luci-theme-argon`) | `luci-i18n-argon-config-zh-cn` | 美观且功能丰富的现代化 LuCI 界面主题，附带可视化的主题设置模块。 |
 
 ---
 
-## 📋 固件说明
+## 🚀 如何触发云编译？
 
-| 说明 | 详情 |
-|------|------|
-| **编译时间** | 显示的时间为编译开始时间，用于对应上游源码版本 |
-| **基础功能** | 默认包含完整网络功能栈 |
-| **扩展插件** | 可通过自定义配置 `.config` 文件增加额外插件 |
-| **硬件平台** | 基于 QUALCOMMAX（IPQ6010）架构 |
-| **性能优化** | 针对 IPQ6010 平台进行网络性能调优 |
+为了安全起见，自动编译触发条件已被移除，只能由仓库的所有者手动触发编译。
 
----
-
-## 📂 项目结构
-
-| 目录/文件 | 用途 | 说明 |
-|----------|------|------|
-| `.github/workflows/` | CI/CD 自动编译 | 定义 GitHub Actions 工作流，实现云端自动构建 |
-| `scripts/` | 编译脚本 | 包含编译前置处理、自定义配置等辅助脚本 |
-| `config/` | 编译配置 | 存放 OpenWrt `.config` 配置文件 |
+1. 进入当前 GitHub 仓库的主页。
+2. 点击页面上方的 **Actions** 选项卡。
+3. 在左侧工作流列表中，点击 **`QCA-ALL`** (用于完整构建)。
+4. 在右侧点击 **Run workflow** 按钮。
+5. （可选）在弹出的菜单中，你可以在 `PACKAGE` 框中填入你想额外增加的插件列表。
+6. 点击绿色的 **Run workflow** 确认执行。
+7. 编译通常需要 1 到 2 小时。完成后，在 QCA-ALL 任务详情页的 **Artifacts** 区域或者仓库的 **Releases** 页面即可下载带有 `King-Sager2333` 前缀的最新固件。
 
 ---
-
-## 🔗 上游源码与依赖
-
-### 📦 OpenWrt 源码仓库
-
-| 版本 | 仓库地址 | 说明 |
-|------|---------|------|
-| **官方版** | [immortalwrt/immortalwrt](https://github.com/immortalwrt/immortalwrt.git) | ImmortalWrt 官方仓库 |
-| **高通专用版** | [ones20250/immortalwrt_ipq](https://github.com/ones20250/immortalwrt_ipq.git) | IPQ 平台优化版本 |
-
-### 🔧 U-Boot 固件仓库
-
-| 平台 | 仓库地址 | 说明 |
-|------|---------|------|
-| **eMMC 版本** | [chenxin527/uboot-ipq60xx-emmc-build](https://github.com/chenxin527/uboot-ipq60xx-emmc-build) | eMMC 存储设备专用 |
-| **NOR Flash 版本** | [chenxin527/uboot-ipq60xx-nor-build](https://github.com/chenxin527/uboot-ipq60xx-nor-build) | NOR Flash 存储设备专用 |
-
-> 💡 **提示：** U-Boot 版本选择需与您的设备硬件配置相匹配，错误选择会导致设备无法启动！
-
----
-
-## 🚀 自定义编译
-
-### 修改编译配置
-
-编辑 `config/.config` 文件，按需调整编译选项：
-
-```bash
-# 克隆仓库
-git clone https://github.com/ones20250/Openwrt-AX6600.git
-cd Openwrt-AX6600
-
-# 编辑配置文件
-nano config/.config
-
-# 提交更改（可选）
-git add config/.config
-git commit -m "feat: 更新编译配置"
-git push origin main
-```
-### 触发编译
-
-提交代码后，GitHub Actions 会自动开始编译，编译完成后固件将发布到 Releases 页面。
-
----
-
-## 📊 固件特性对比
-
-| 特性 | 原厂固件 | 本项目固件 |
-|------|---------|----------|
-| **OpenWrt 版本** | 不支持 | ✅ 最新版 |
-| **NSS 硬件加速** | ⚠️ 部分支持 | ✅ 完全支持 |
-| **网络性能** | 基础 | ✅ 优化增强 |
-| **自定义插件** | ❌ 不支持 | ✅ 完全支持 |
-| **定期更新** | ❌ 不定期 | ✅ 自动更新 |
-| **开源透明** | ❌ 闭源 | ✅ 开源公开 |
-
----
-
-## 🔐 安全建议
-
-### ⚠️ 刷机前必读
-
-1. **备份所有数据**
-   ```bash
-   # SSH 连接到设备
-   ssh root@192.168.1.1
-   
-   # 备份整个 U-Boot 分区
-   dd if=/dev/mtd0 of=/tmp/uboot.bin
-   
-   # 备份分区表
-   dd if=/dev/mtd1 of=/tmp/partition_table.bin
-   ``
-2. **验证文件完整性**
-   ```bash
-   # 下载固件和校验和文件
-   # 验证 SHA256
-   sha256sum -c firmware.bin.sha256
-   ``
-3. **准备恢复方案**
-   - 保留 TTL 串口工具
-   - 准备原厂固件备份
-   - 了解救砖流程
-
-### 🛡️ 常见风险及预防
-
-| 风险 | 症状 | 预防方法 |
-|------|------|---------|
-| **U-Boot 错误** | 设备无法启动 | 使用不死 U-Boot，备份原件 |
-| **分区错误** | 系统无法识别 | 使用正确的 GPT 分区表 |
-| **断电** | 刷机中断 | 使用 UPS 或稳定电源 |
-| **固件损坏** | 开机无响应 | 验证 SHA256 后再刷入 |
-
 
 ## ⚠️ 免责声明
 
@@ -183,4 +54,3 @@ git push origin main
 
 本项目固件仅供学习与研究使用，请确认设备型号匹配并提前备份数据。
 因刷机造成的设备损坏或数据丢失，作者不承担任何责任。
-

@@ -20,10 +20,8 @@ UPDATE_PACKAGE() {
 
 		# 删除找到的目录
 		if [ -n "$FOUND_DIRS" ]; then
-			while read -r DIR; do
-				rm -rf "$DIR"
-				echo "Delete directory: $DIR"
-			done <<< "$FOUND_DIRS"
+			echo "$FOUND_DIRS" | sed 's/^/Delete directory: /'
+			echo "$FOUND_DIRS" | tr '\n' '\0' | xargs -0 rm -rf
 		else
 			echo "Not found directory: $NAME"
 		fi
@@ -45,7 +43,6 @@ UPDATE_PACKAGE() {
 # UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master" "" "custom_name1 custom_name2"
 # UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master" "" "luci-app-appfilter oaf" 这样会把原有的open-app-filter，luci-app-appfilter，oaf相关组件删除，不会出现coremark错误。
 
-# 自动检测并更新指定软件包到 GitHub 最新 Release 版本
 # 自动检测并更新指定软件包到 GitHub 最新 Release 版本
 UPDATE_VERSION() {
 	local PKG_NAME=$1
@@ -71,7 +68,7 @@ UPDATE_VERSION() {
 		local PKG_URL=$([[ "$OLD_URL" == *"releases"* ]] && echo "${OLD_URL%/}/$OLD_FILE" || echo "${OLD_URL%/}")
 
 		local NEW_VER="${PKG_TAG#v}"
-		local NEW_URL=$(echo $PKG_URL | sed "s/\$(PKG_VERSION)/$NEW_VER/g; s/\$(PKG_NAME)/$PKG_NAME/g")
+		local NEW_URL=$(echo "$PKG_URL" | sed "s/$OLD_VER/$NEW_VER/g")
 		local NEW_HASH=$(curl -sL "$NEW_URL" | sha256sum | cut -d ' ' -f 1)
 
 		echo "old version: $OLD_VER $OLD_HASH"
@@ -87,5 +84,5 @@ UPDATE_VERSION() {
 	done
 }
 
-#UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"
-#UPDATE_VERSION "sing-box"
+# 调用示例
+# UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"

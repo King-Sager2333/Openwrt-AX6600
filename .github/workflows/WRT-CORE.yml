@@ -215,12 +215,20 @@ jobs:
 
             find ./bin/targets/ -iregex ".*\(buildinfo\|json\|sha256sums\|packages\)$" -exec rm -rf {} +
 
+            shopt -s nocasematch
             for FILE in $(find ./bin/targets/ -type f -iname "*$WRT_TARGET*") ; do
-              EXT=$(basename $FILE | cut -d '.' -f 2-)
-              NAME=$(basename $FILE | cut -d '.' -f 1 | grep -io "\($WRT_TARGET\).*")
+              FILENAME="${FILE##*/}"
+              EXT="${FILENAME#*.}"
+              BASENAME="${FILENAME%%.*}"
+              if [[ "$BASENAME" =~ ($WRT_TARGET.*) ]]; then
+                NAME="${BASH_REMATCH[1]}"
+              else
+                NAME="$BASENAME"
+              fi
               NEW_FILE="King-Sager2333"-"$WRT_BRANCH"-"$WRT_WIFI"-"$NAME"-"$WRT_DATE"."$EXT"
-              mv -f $FILE ./upload/$NEW_FILE
+              mv -f "$FILE" "./upload/$NEW_FILE"
             done
+            shopt -u nocasematch
 
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
 

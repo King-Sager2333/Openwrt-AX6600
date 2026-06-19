@@ -2,7 +2,7 @@
 
 PKG_PATH="$GITHUB_WORKSPACE/wrt/package/"
 
-#预置HomeProxy数据
+# 为 HomeProxy 插件提前下载并打包最新的路由规则库 (如 Surge 规则)，以避免初次启动时需要在线下载
 if [ -d *"homeproxy"* ]; then
 	echo " "
 
@@ -24,7 +24,7 @@ if [ -d *"homeproxy"* ]; then
 	cd $PKG_PATH && echo "homeproxy date has been updated!"
 fi
 
-#修改argon主题字体和颜色
+# 定制 Argon 主题的视觉效果，例如将主题色改为青绿色，调低透明度，修改字体等
 if [ -d *"luci-theme-argon"* ]; then
 	echo " "
 
@@ -35,7 +35,7 @@ if [ -d *"luci-theme-argon"* ]; then
 	cd $PKG_PATH && echo "theme-argon has been fixed!"
 fi
 
-#修复TailScale配置文件冲突
+# 删除冲突的 TailScale 配置目录，防止编译过程中因为文件重复而导致的报错
 TS_FILE=$(find ../feeds/packages/ -maxdepth 3 -type f -wholename "*/tailscale/Makefile")
 if [ -f "$TS_FILE" ]; then
 	echo " "

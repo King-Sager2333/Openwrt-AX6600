@@ -20,10 +20,8 @@ UPDATE_PACKAGE() {
 
 		# 删除找到的目录
 		if [ -n "$FOUND_DIRS" ]; then
-			while read -r DIR; do
-				rm -rf "$DIR"
-				echo "Delete directory: $DIR"
-			done <<< "$FOUND_DIRS"
+			echo "$FOUND_DIRS" | sed 's/^/Delete directory: /'
+			echo "$FOUND_DIRS" | tr '\n' '\0' | xargs -0 rm -rf
 		else
 			echo "Not found directory: $NAME"
 		fi

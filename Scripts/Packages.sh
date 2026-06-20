@@ -56,9 +56,6 @@ UPDATE_PACKAGE "argon" "sbwml/luci-theme-argon" "openwrt-25.12"
 UPDATE_PACKAGE "passwall" "Openwrt-Passwall/openwrt-passwall" "main" "pkg"
 UPDATE_PACKAGE "passwall2" "Openwrt-Passwall/openwrt-passwall2" "main" "pkg"
 
-# 拉取 Athena LED 驱动
-UPDATE_PACKAGE "athena-led" "unraveloop/JDC-AX6600-Athena-LED-Controller" "main"
-
 
 # 更新软件包版本函数
 # 用于从 Github 抓取指定包的最新 releases，并修改 Makefile 的版本和 Hash 以自动升级

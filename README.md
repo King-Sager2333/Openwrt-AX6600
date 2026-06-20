@@ -29,7 +29,6 @@
 | **Passwall** (`luci-app-passwall`) | `luci-i18n-passwall-zh-cn` | 强大的科学上网代理客户端，支持多节点、分流及高阶网络路由。 |
 | **AdGuard Home** (`luci-app-adguardhome`) | `luci-i18n-adguardhome-zh-cn` | 全局广告拦截与隐私保护工具，通过自建 DNS 服务器阻止跟踪器和广告域名。 |
 | **Dockerman** (`luci-app-dockerman`) | `luci-i18n-dockerman-zh-cn` | 可视化 Docker 容器管理工具，方便在路由器上轻松部署和管理 Docker 应用。 |
-| **Athena LED** (`luci-app-athena-led`) | 驱动自带 | 针对京东云雅典娜专属适配的点阵屏控制插件，支持自定义显示网络状态和信息。 |
 | **Argon Theme** (`luci-theme-argon`) | `luci-i18n-argon-config-zh-cn` | 美观且功能丰富的现代化 LuCI 界面主题，附带可视化的主题设置模块。 |
 
 ---

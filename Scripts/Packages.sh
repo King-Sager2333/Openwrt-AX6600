@@ -1,28 +1,24 @@
 #!/bin/bash
 
-# 安装和更新软件包的函数
-# 参数说明：
-# $1: PKG_NAME - 软件包最终的目录名称
-# $2: PKG_REPO - GitHub 项目地址 (格式: "用户名/仓库名")
-# $3: PKG_BRANCH - GitHub 项目分支
-# $4: PKG_SPECIAL - 特殊处理标记 (pkg: 从大杂烩仓库中单独提取某个插件, name: 将整个仓库重命名为 PKG_NAME)
-# $5: 自定义名称列表 (用于清理本地可能存在冲突的旧包)
+#安装和更新软件包
 UPDATE_PACKAGE() {
 	local PKG_NAME=$1
 	local PKG_REPO=$2
 	local PKG_BRANCH=$3
 	local PKG_SPECIAL=$4
-	local PKG_LIST=("$PKG_NAME" $5)
+	local PKG_LIST=("$PKG_NAME" $5)  # 第5个参数为自定义名称列表
 	local REPO_NAME=${PKG_REPO#*/}
 
 	echo " "
 
-	# 删除本地可能存在的不同名称的冲突软件包
+	# 删除本地可能存在的不同名称的软件包
 	for NAME in "${PKG_LIST[@]}"; do
+		# 查找匹配的目录
 		echo "Search directory: $NAME"
 		local FOUND_DIRS
 		FOUND_DIRS=$(find ../feeds/luci/ ../feeds/packages/ -maxdepth 3 -type d -iname "*$NAME*" 2>/dev/null)
 
+		# 删除找到的目录
 		if [ -n "$FOUND_DIRS" ]; then
 			while read -r DIR; do
 				rm -rf "$DIR"
@@ -33,32 +29,68 @@ UPDATE_PACKAGE() {
 		fi
 	done
 
-	# 从 GitHub 克隆指定分支的仓库代码
+	# 克隆 GitHub 仓库
 	git clone --depth=1 --single-branch --branch "$PKG_BRANCH" "https://github.com/$PKG_REPO.git"
+
+	local PKG_COMMIT
+	PKG_COMMIT=$(git -C "$REPO_NAME" rev-parse --short HEAD 2>/dev/null || echo unknown)
+	if [ -n "$GITHUB_WORKSPACE" ]; then
+		echo "$PKG_NAME $PKG_REPO $PKG_BRANCH $PKG_COMMIT" >> "$GITHUB_WORKSPACE/package-versions.txt"
+	fi
 
 	# 处理克隆的仓库
 	if [[ "$PKG_SPECIAL" == "pkg" ]]; then
-		# 如果是 pkg 模式，只提取对应名称的目录并删除剩余部分
 		find "./$REPO_NAME"/*/ -maxdepth 3 -type d -iname "*$PKG_NAME*" -prune -exec cp -rf {} ./ \;
 		rm -rf "./$REPO_NAME/"
 	elif [[ "$PKG_SPECIAL" == "name" ]]; then
-		# 如果是 name 模式，重命名整个仓库文件夹
 		mv -f "$REPO_NAME" "$PKG_NAME"
 	fi
 }
 
-# --- 用户要求的插件拉取 ---
+# 调用示例
+# UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master" "" "custom_name1 custom_name2"
+# UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master" "" "luci-app-appfilter oaf" 这样会把原有的open-app-filter，luci-app-appfilter，oaf相关组件删除，不会出现coremark错误。
 
-# 拉取 Argon 主题
-UPDATE_PACKAGE "argon" "sbwml/luci-theme-argon" "openwrt-25.12"
+# UPDATE_PACKAGE "包名" "项目地址" "项目分支" "pkg/name，可选，pkg为从大杂烩中单独提取包名插件；name为重命名为包名"
+#UPDATE_PACKAGE "aurora" "ones20250/luci-theme-aurora" "master"
+#UPDATE_PACKAGE "aurora-config" "ones20250/luci-app-aurora-config" "master"
+#UPDATE_PACKAGE "kucat" "sirpdboy/luci-theme-kucat" "master"
+#UPDATE_PACKAGE "kucat-config" "sirpdboy/luci-app-kucat-config" "master"
 
-# 拉取 Passwall 组件
-UPDATE_PACKAGE "passwall" "Openwrt-Passwall/openwrt-passwall" "main" "pkg"
-UPDATE_PACKAGE "passwall2" "Openwrt-Passwall/openwrt-passwall2" "main" "pkg"
+#UPDATE_PACKAGE "homeproxy" "ones20250/homeproxy" "master"
+#UPDATE_PACKAGE "momo" "nikkinikki-org/OpenWrt-momo" "main"
+#UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main"
+if [[ "${WRT_PROFILE^^}" == "PLUS" ]]; then
+	# LuCI 入口随 "pkg" 通配一并提取，依赖包（xray、sing-box、geodata 等）
+	# 由 passwall_packages feed 提供，避免同名包双重定义。
+	UPDATE_PACKAGE "openclash" "vernesong/OpenClash" "master" "pkg"
+	#一代 PassWall 已由 PassWall2 取代，fork 者如需可取消注释，并同步启用 Config/GENERAL_AX6600_PLUS.txt 中对应配置段
+	# 分区扩容与网络唤醒：源码仅 PLUS 版拉取，PURE 中同名 =y 配置因无源码自动失效
+	UPDATE_PACKAGE "partexp" "sirpdboy/luci-app-partexp" "main"
+	UPDATE_PACKAGE "viking" "ones20250/packages" "main" "" "luci-app-timewol luci-app-wolplus"
+fi
 
+#UPDATE_PACKAGE "mosdns" "sbwml/luci-app-mosdns" "v5" "" "v2dat"
 
-# 更新软件包版本函数
-# 用于从 Github 抓取指定包的最新 releases，并修改 Makefile 的版本和 Hash 以自动升级
+#UPDATE_PACKAGE "luci-app-tailscale" "asvow/luci-app-tailscale" "main"
+
+#UPDATE_PACKAGE "ddns-go" "sirpdboy/luci-app-ddns-go" "main"
+#UPDATE_PACKAGE "diskman" "lisaac/luci-app-diskman" "master"
+#UPDATE_PACKAGE "easytier" "EasyTier/luci-app-easytier" "main"
+#UPDATE_PACKAGE "gecoosac" "laipeng668/luci-app-gecoosac" "main"
+#UPDATE_PACKAGE "netspeedtest" "sirpdboy/netspeedtest" "main" "" "homebox speedtest"
+#UPDATE_PACKAGE "openlist2" "sbwml/luci-app-openlist2" "main"
+#UPDATE_PACKAGE "partexp" "sirpdboy/luci-app-partexp" "main"
+#UPDATE_PACKAGE "qbittorrent" "sbwml/luci-app-qbittorrent" "master" "" "qt6base qt6tools rblibtorrent"
+#UPDATE_PACKAGE "qmodem" "FUjr/QModem" "main"
+#UPDATE_PACKAGE "quickfile" "sbwml/luci-app-quickfile" "main"
+#局域网唤醒
+#UPDATE_PACKAGE "viking" "ones20250/packages" "main" "" "luci-app-timewol luci-app-wolplus"
+#UPDATE_PACKAGE "vnt" "lmq8267/luci-app-vnt" "main"
+#雅典娜的led屏
+#UPDATE_PACKAGE "athena-led" "unraveloop/JDC-AX6600-Athena-LED-Controller" "main"
+
+#更新软件包版本
 UPDATE_VERSION() {
 	local PKG_NAME=$1
 	local PKG_MARK=${2:-false}
@@ -98,3 +130,18 @@ UPDATE_VERSION() {
 		fi
 	done
 }
+
+#UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"
+#UPDATE_VERSION "sing-box"
+
+# --- 用户要求的插件拉取 ---
+
+# 拉取 Argon 主题
+UPDATE_PACKAGE "argon" "sbwml/luci-theme-argon" "openwrt-25.12"
+
+# 拉取 Passwall 组件
+UPDATE_PACKAGE "passwall" "Openwrt-Passwall/openwrt-passwall" "main" "pkg"
+UPDATE_PACKAGE "passwall2" "Openwrt-Passwall/openwrt-passwall2" "main" "pkg"
+
+# 拉取 HomeProxy
+UPDATE_PACKAGE "homeproxy" "VIKINGYFY/homeproxy" "main"

@@ -33,7 +33,6 @@ jobs:
       #max-parallel: 3
       matrix:
         CONFIG: [IPQ60XX-WIFI-YES]
-        PROFILE: [PURE, PLUS]
         SOURCE: [ones20250/immortalwrt_ipq]
         BRANCH: [main]
 
@@ -63,7 +62,5 @@ jobs:
       WRT_SOURCE: ${{matrix.SOURCE}}
       #插件调整
       WRT_PACKAGE: ${{inputs.PACKAGE}}
-      #固件版本：PURE=纯净版，PLUS=Plus 版
-      WRT_PROFILE: ${{matrix.PROFILE}}
       #仅输出配置文件
       WRT_TEST: ${{inputs.TEST}}

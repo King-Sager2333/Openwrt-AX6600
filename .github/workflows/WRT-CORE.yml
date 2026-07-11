@@ -37,6 +37,10 @@ on:
       WRT_PACKAGE:
         required: false
         type: string
+      WRT_PROFILE:
+        required: false
+        type: string
+        default: PURE
       WRT_TEST:
         required: false
         type: string
@@ -54,6 +58,8 @@ env:
   WRT_BRANCH: ${{inputs.WRT_BRANCH}}
   WRT_SOURCE: ${{inputs.WRT_SOURCE}}
   WRT_PACKAGE: ${{inputs.WRT_PACKAGE}}
+  WRT_PROFILE: ${{inputs.WRT_PROFILE}}
+  WRT_PKG_INFO: 无（纯净版不集成外部插件）
   WRT_TEST: ${{inputs.WRT_TEST}}
 
 jobs:
@@ -62,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Projects
-        uses: actions/checkout@main
+        uses: actions/checkout@v4
 
       - name: Initialization Environment
         env:
@@ -87,9 +93,21 @@ jobs:
         run: |
           echo "WRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d-%H.%M.%S")" >> $GITHUB_ENV
           echo "WRT_MARK=${GITHUB_REPOSITORY%%/*}" >> $GITHUB_ENV
+          WRT_PROFILE_UPPER=$(echo "${WRT_PROFILE:-PURE}" | tr '[:lower:]' '[:upper:]')
+          case "$WRT_PROFILE_UPPER" in
+            PURE|PLUS) ;;
+            *) echo "Unsupported WRT_PROFILE: $WRT_PROFILE" >&2; exit 1 ;;
+          esac
+          echo "WRT_PROFILE=$WRT_PROFILE_UPPER" >> $GITHUB_ENV
+          if [[ "$WRT_PROFILE_UPPER" == "PLUS" ]]; then
+            echo "WRT_PROFILE_DESC=Plus 版，预装 OpenClash、PassWall2、Docker/Dockerman、AdGuard Home、DDNS、ttyd、UPnP 及分区扩容、网络唤醒等实用插件，刷完即用；启用 AdGuard Home 与代理插件前请先阅读 README 的「PLUS 版使用提示」" >> $GITHUB_ENV
+          else
+            echo "WRT_PROFILE_DESC=纯净版，轻量稳定，仅含基础网络与常用管理插件，扩展插件按需自行安装" >> $GITHUB_ENV
+          fi
           echo "WRT_INFO=${WRT_SOURCE%%/*}" >> $GITHUB_ENV
           echo "WRT_TARGET=$(grep -m 1 -oP '^CONFIG_TARGET_\K[\w]+(?=\=y)' ./Config/$WRT_CONFIG.txt)" >> $GITHUB_ENV
           echo "WRT_WIFI=wifi-yes" >> $GITHUB_ENV
+          echo "WRT_EXTRA_CONFIG=$([[ -f ./Config/GENERAL_AX6600_${WRT_PROFILE_UPPER}.txt ]] && echo ./Config/GENERAL_AX6600_${WRT_PROFILE_UPPER}.txt || true)" >> $GITHUB_ENV
           echo "WRT_KVER=none" >> $GITHUB_ENV
           echo "WRT_LIST=none" >> $GITHUB_ENV
 
@@ -105,6 +123,12 @@ jobs:
             sed -i '/.cn\//d; /tencent/d; /aliyun/d' "$PROJECT_MIRRORS_FILE"
           fi
 
+          # Plus 版补充 PassWall 依赖包 feed（xray/sing-box 等）。
+          # LuCI 插件本体由 Packages.sh 克隆到 package/，这里不再加 LuCI feed，避免同名包双重定义。
+          if [[ "$WRT_PROFILE" == "PLUS" ]]; then
+            echo "src-git passwall_packages https://github.com/Openwrt-Passwall/openwrt-passwall-packages" >> feeds.conf.default
+          fi
+
       - name: Check Scripts
         run: |
           find ./ -maxdepth 3 -type f -iregex ".*\(txt\|sh\)$" -exec dos2unix {} \; -exec chmod +x {} \;
@@ -112,8 +136,9 @@ jobs:
       - name: Check Caches
         id: check-cache
         if: env.WRT_TEST != 'true'
-        uses: actions/cache@main
+        uses: actions/cache@v4
         with:
+          # 缓存内容（ccache/宿主工具/工具链）与 profile 无关，PURE 和 PLUS 共享同一份，避免缓存翻倍挤占配额
           key: ${{env.WRT_CONFIG}}-${{env.WRT_INFO}}-${{env.WRT_HASH}}
           restore-keys: ${{env.WRT_CONFIG}}-${{env.WRT_INFO}}
           path: |
@@ -139,7 +164,8 @@ jobs:
           if ${{steps.check-cache.outputs.cache-hit != 'true'}}; then
             CACHE_LIST=$(gh cache list --key "$WRT_CONFIG-$WRT_INFO" | cut -f 1)
             for CACHE_KEY in $CACHE_LIST; do
-              gh cache delete $CACHE_KEY
+              # PURE/PLUS 两个任务可能并发清理同一批缓存，删除失败（已被对方删掉）不视为错误
+              gh cache delete $CACHE_KEY || true
             done
 
             echo "caches cleanup done!"
@@ -159,8 +185,19 @@ jobs:
         run: |
           cd ./wrt/package/
 
+          : > "$GITHUB_WORKSPACE/package-versions.txt"
           $GITHUB_WORKSPACE/Scripts/Packages.sh
-          #$GITHUB_WORKSPACE/Scripts/Handles.sh
+          if [[ "$WRT_PROFILE" == "PLUS" && -e ../feeds/passwall_packages/.git ]]; then
+            echo "passwall_packages(feed) Openwrt-Passwall/openwrt-passwall-packages main $(git -C ../feeds/passwall_packages rev-parse --short HEAD)" >> "$GITHUB_WORKSPACE/package-versions.txt"
+          fi
+          if [ -s "$GITHUB_WORKSPACE/package-versions.txt" ]; then
+            {
+              echo 'WRT_PKG_INFO<<EOF'
+              cat "$GITHUB_WORKSPACE/package-versions.txt"
+              echo 'EOF'
+            } >> "$GITHUB_ENV"
+          fi
+          $GITHUB_WORKSPACE/Scripts/Handles.sh
 
       - name: Custom Settings
         run: |
@@ -170,7 +207,7 @@ jobs:
             cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt >> .config
           else
             #cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/GENERAL.txt >> .config
-            cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/GENERAL_AX6600.txt >> .config
+            cat $GITHUB_WORKSPACE/Config/$WRT_CONFIG.txt $GITHUB_WORKSPACE/Config/GENERAL_AX6600.txt ${WRT_EXTRA_CONFIG:+$GITHUB_WORKSPACE/${WRT_EXTRA_CONFIG#./}} >> .config
           fi
 
           $GITHUB_WORKSPACE/Scripts/Settings.sh
@@ -207,7 +244,10 @@ jobs:
         run: |
           cd ./wrt/ && mkdir -p ./upload/
 
-          cp -f ./.config ./upload/Config-"$WRT_CONFIG"-"$WRT_INFO"-"$WRT_BRANCH"-"$WRT_DATE".txt
+          cp -f ./.config ./upload/Config-"$WRT_CONFIG"-"$WRT_PROFILE"-"$WRT_INFO"-"$WRT_BRANCH"-"$WRT_DATE".txt
+          if [ -s "$GITHUB_WORKSPACE/package-versions.txt" ]; then
+            cp -f "$GITHUB_WORKSPACE/package-versions.txt" ./upload/Packages-"$WRT_CONFIG"-"$WRT_PROFILE"-"$WRT_INFO"-"$WRT_BRANCH"-"$WRT_DATE".txt
+          fi
 
           if [[ $WRT_TEST != 'true' ]]; then
             echo "WRT_KVER=$(find ./bin/targets/ -type f -name "*.manifest" -exec grep -oP '^kernel - \K[\d\.]+' {} \;)" >> $GITHUB_ENV
@@ -218,11 +258,16 @@ jobs:
             for FILE in $(find ./bin/targets/ -type f -iname "*$WRT_TARGET*") ; do
               EXT=$(basename $FILE | cut -d '.' -f 2-)
               NAME=$(basename $FILE | cut -d '.' -f 1 | grep -io "\($WRT_TARGET\).*")
-              NEW_FILE="King-Sager2333-$WRT_BRANCH-$WRT_WIFI-$NAME-$WRT_DATE.$EXT"
+              # 去掉恒定的平台前缀（qualcommax-），保留 ipq60xx 及设备型号
+              NAME=${NAME#*-}
+              NEW_FILE="King-Sager2333-$WRT_BRANCH-$WRT_PROFILE-$NAME-$WRT_DATE.$EXT"
               mv -f $FILE ./upload/$NEW_FILE
             done
 
             find ./bin/targets/ -type f -exec mv -f {} ./upload/ \;
+
+            # 对最终命名后的固件生成校验文件，供用户刷机前验证下载完整性；失败不阻塞发布
+            (cd ./upload/ && sha256sum *.bin > sha256sums.txt) || true
 
             make clean -j$(nproc)
           fi
@@ -235,6 +280,7 @@ jobs:
             echo "- Source: \`$WRT_SOURCE\`"
             echo "- Branch: \`$WRT_BRANCH\`"
             echo "- Config: \`$WRT_CONFIG\`"
+            echo "- Profile: \`$WRT_PROFILE\`"
             echo "- Target: \`$WRT_TARGET\`"
             echo "- Firmware mode: \`$WRT_WIFI\`"
             echo "- Build time: \`$WRT_DATE\`"
@@ -242,9 +288,9 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Release Firmware
-        uses: softprops/action-gh-release@master
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.WRT_CONFIG }}-${{ env.WRT_INFO }}-${{ env.WRT_BRANCH }}-${{ env.WRT_DATE }}
+          tag_name: ${{ env.WRT_CONFIG }}-${{ env.WRT_PROFILE }}-${{ env.WRT_INFO }}-${{ env.WRT_BRANCH }}-${{ env.WRT_DATE }}
           files: ./wrt/upload/*.*
           body: |
             📦 OpenWrt 自动编译固件（AX6600 / IPQ6010）
@@ -253,8 +299,14 @@ jobs:
             📌 基本信息
             源码仓库：${{ env.WRT_REPO }}
             编译分支：${{ env.WRT_BRANCH }}
+            固件版本：${{ env.WRT_PROFILE }}
+            版本说明：${{ env.WRT_PROFILE_DESC }}
             提交版本：${{ env.WRT_HASH }}
             编译时间：${{ env.WRT_DATE }}
+            ━━━━━━━━━━━━━━━━━━━━━━━
+
+            📌 外部插件来源
+            ${{ env.WRT_PKG_INFO }}
             ━━━━━━━━━━━━━━━━━━━━━━━
 
             🧩 设备与平台
@@ -278,9 +330,13 @@ jobs:
             WiFi 名称：${{ env.WRT_SSID }}
             WiFi 密码：${{ env.WRT_WORD }}
             ━━━━━━━━━━━━━━━━━━━━━━━
-            📦 使用说明
-            - 请根据设备型号选择对应固件文件
-            - 不同文件适配不同刷机方式（factory / sysupgrade）
+            📥 下载与刷机说明
+            - 本 Release 为 ${{ env.WRT_PROFILE }} 版固件；两个版本分开发布，请从 README 下载入口按需选择
+            - 首次从原厂固件刷入：选文件名带 factory 的文件
+            - 已是 OpenWrt/ImmortalWrt 升级：选文件名带 sysupgrade 的文件
+            - Config-*.txt：本次编译的完整 .config 配置，便于复现或二次定制
+            - Packages-*.txt：外部插件（OpenClash / PassWall2 等）的仓库、分支与 commit 记录（纯净版无外部插件，无此文件）
+            - sha256sums.txt：固件校验文件，刷机前请先校验下载完整性（方法见 README 刷机前必读）
 
             ⚠️ 风险提示
             刷机存在风险，请确认：

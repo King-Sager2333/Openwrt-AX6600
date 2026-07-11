@@ -1,11 +1,16 @@
-# 🚀 OpenWrt AX6600 / IPQ60xx 固件构建项目
+# 🚀 OpenWrt AX6600 / IPQ60xx Router Firmware (Cloud Build + NSS Acceleration)
 
-基于 OpenWrt / ImmortalWrt 的定制固件，专门为 JDCloud RE-CS-02（京东云雅典娜 AX6600）打造。
+OpenWrt / AX6600 / IPQ6010 / JDCloud RE-CS-02 / NSS / Router Firmware / Cloud Build
+> 基于 OpenWrt / ImmortalWrt 的定制固件，适配 JDCloud RE-CS-02（京东云雅典娜 AX6600），集成 NSS 硬件加速优化与 GitHub Actions 自动云编译
 
 **当前版本前缀：`King-Sager2333`**
 
-本项目主要利用 GitHub Actions 进行云端自动化编译，在原有的基础上集成了常用且强大的网络插件与工具，并优化了底层性能与内存管理策略。
+[![Stars](https://img.shields.io/github/stars/ones20250/Openwrt-AX6600?style=flat&logo=github&label=Stars)](https://github.com/ones20250/Openwrt-AX6600/stargazers)
+[![Downloads](https://img.shields.io/github/downloads/ones20250/Openwrt-AX6600/total?logo=github&label=%E4%B8%8B%E8%BD%BD%E9%87%8F)](https://github.com/ones20250/Openwrt-AX6600/releases)
+[![Build](https://img.shields.io/github/actions/workflow/status/ones20250/Openwrt-AX6600/QCA-ALL.yml?label=%E7%BC%96%E8%AF%91)](https://github.com/ones20250/Openwrt-AX6600/actions)
+[![Release Date](https://img.shields.io/github/release-date/ones20250/Openwrt-AX6600?label=%E6%9C%80%E6%96%B0%E5%8F%91%E5%B8%83)](https://github.com/ones20250/Openwrt-AX6600/releases)
 
+[👉 进入项目主页](https://github.com/ones20250/Openwrt-AX6600)
 ---
 
 ## ⭐ 项目特点
@@ -30,6 +35,7 @@
 | **AdGuard Home** (`luci-app-adguardhome`) | `luci-i18n-adguardhome-zh-cn` | 全局广告拦截与隐私保护工具，通过自建 DNS 服务器阻止跟踪器和广告域名。 |
 | **Dockerman** (`luci-app-dockerman`) | `luci-i18n-dockerman-zh-cn` | 可视化 Docker 容器管理工具，方便在路由器上轻松部署和管理 Docker 应用。 |
 | **Argon Theme** (`luci-theme-argon`) | `luci-i18n-argon-config-zh-cn` | 美观且功能丰富的现代化 LuCI 界面主题，附带可视化的主题设置模块。 |
+| **HomeProxy** (`luci-app-homeproxy`) | `luci-i18n-homeproxy-zh-cn` | 新一代代理工具，提供极简的配置页面和极致的性能。 |
 
 ---
 

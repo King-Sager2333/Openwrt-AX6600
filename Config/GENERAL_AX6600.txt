@@ -1,3 +1,5 @@
+#科学插件调整
+
 #增加插件
 CONFIG_PACKAGE_luci-app-autoreboot=y
 CONFIG_PACKAGE_luci-app-netspeedtest=n
@@ -11,6 +13,7 @@ CONFIG_PACKAGE_luci-app-arpbind=y
 CONFIG_PACKAGE_luci-app-firewall=n
 CONFIG_PACKAGE_luci-app-firewall4=y
 CONFIG_PACKAGE_firewall4=y
+
 CONFIG_PACKAGE_kmod-nf-ipt=n
 CONFIG_PACKAGE_iptables=n
 
@@ -18,7 +21,7 @@ CONFIG_PACKAGE_iptables=n
 CONFIG_PACKAGE_luci-app-attendedsysupgrade=n
 CONFIG_PACKAGE_luci-app-wol=n
 CONFIG_PACKAGE_luci-app-gecoosac=n
-CONFIG_PACKAGE_luci-app-upnp=y
+CONFIG_PACKAGE_luci-app-upnp=n
 
 #参数调整
 CONFIG_CCACHE=y
@@ -46,34 +49,28 @@ CONFIG_PACKAGE_kmod-fuse=n
 CONFIG_PACKAGE_kmod-inet-diag=y
 CONFIG_PACKAGE_kmod-inet-mptcp-diag=n
 CONFIG_PACKAGE_kmod-mtd-rw=n
-CONFIG_PACKAGE_kmod-netlink-diag=y
-CONFIG_PACKAGE_kmod-nf-nathelper=y
+CONFIG_PACKAGE_kmod-netlink-diag=n
+CONFIG_PACKAGE_kmod-nf-nat6=n
+CONFIG_PACKAGE_kmod-nf-nathelper=n
 CONFIG_PACKAGE_kmod-nft-arp=n
 CONFIG_PACKAGE_kmod-nft-bridge=y
+CONFIG_PACKAGE_kmod-nft-compat=n
 CONFIG_PACKAGE_kmod-nft-connlimit=n
 CONFIG_PACKAGE_kmod-nft-core=y
 CONFIG_PACKAGE_kmod-nft-dup-inet=n
 CONFIG_PACKAGE_kmod-nft-fib=y
+CONFIG_PACKAGE_kmod-nft-fullcone=n
+CONFIG_PACKAGE_kmod-nft-nat=n
 CONFIG_PACKAGE_kmod-nft-netdev=n
-CONFIG_PACKAGE_kmod-nft-queue=y
+CONFIG_PACKAGE_kmod-nft-offload=n
+CONFIG_PACKAGE_kmod-nft-queue=n
 CONFIG_PACKAGE_kmod-nft-socket=y
 CONFIG_PACKAGE_kmod-nft-tproxy=y
 CONFIG_PACKAGE_kmod-nft-xfrm=y
-
-CONFIG_PACKAGE_kmod-veth=y
-CONFIG_PACKAGE_kmod-ikconfig=y
-CONFIG_PACKAGE_kmod-nf-ipvs=y
-CONFIG_PACKAGE_kmod-nf-nat=y
-CONFIG_PACKAGE_kmod-nf-nat6=y
-CONFIG_PACKAGE_kmod-nft-nat=y
-CONFIG_PACKAGE_kmod-nft-offload=y
-CONFIG_PACKAGE_kmod-nft-compat=y
-CONFIG_PACKAGE_kmod-nft-fullcone=y
-
 CONFIG_PACKAGE_kmod-sound-core=y
 CONFIG_PACKAGE_kmod-tun=y
 CONFIG_PACKAGE_kmod-usb3=y
-CONFIG_PACKAGE_kmod-usb-audio=y
+CONFIG_PACKAGE_kmod-usb-audio=n
 CONFIG_PACKAGE_kmod-usb-serial-qualcomm=n
 CONFIG_PACKAGE_kmod-usb-core=y
 CONFIG_PACKAGE_kmod-usb-dwc3=y
@@ -92,10 +89,10 @@ CONFIG_PACKAGE_kmod-usb-net-qmi-wwan=y
 CONFIG_PACKAGE_kmod-usb-net-qmi-wwan-fibocom=y
 CONFIG_PACKAGE_kmod-usb-net-qmi-wwan-quectel=y
 # 安卓 RNDIS 共享
-CONFIG_PACKAGE_kmod-usb-net-rndis=y
+CONFIG_PACKAGE_kmod-usb-net-rndis=n
 CONFIG_PACKAGE_kmod-usb-net-rtl8150=n
 CONFIG_PACKAGE_kmod-usb-net-rtl8152=y
-CONFIG_PACKAGE_kmod-usb-net-sierrawireless=y
+CONFIG_PACKAGE_kmod-usb-net-sierrawireless=n
 CONFIG_PACKAGE_kmod-usb-ohci=n
 CONFIG_PACKAGE_kmod-usb-storage=y
 CONFIG_PACKAGE_kmod-usb-storage-extras=y
@@ -150,14 +147,9 @@ CONFIG_PACKAGE_usb-modeswitch=y
 CONFIG_PACKAGE_usbmuxd=n
 CONFIG_PACKAGE_usbutils=y
 
-# 内核驱动模块（用于 DPI 深度报文检测抓包）
-CONFIG_PACKAGE_kmod-oaf=y
-# 用户态服务（用于处理客户端应用记录统计与规则策略）
-CONFIG_PACKAGE_appfilter=y
-# LuCI 网页管理界面
-CONFIG_PACKAGE_luci-app-oaf=y
-# 对应的中文翻译语言包
-CONFIG_PACKAGE_luci-i18n-oaf-zh-cn=y
+# 雅典娜 LED 点阵屏驱动及插件
+CONFIG_PACKAGE_luci-app-athena-led=y
+CONFIG_PACKAGE_athena-led-control=y
 
 # 建议开启自动挂载，方便识别 eMMC 分区
 CONFIG_PACKAGE_block-mount=y
@@ -174,6 +166,9 @@ CONFIG_PACKAGE_luci-app-wireless-regdb=y
 CONFIG_PACKAGE_skb_recycler=n
 
 
+# Remove bootstrap theme
+
+
 # --- 用户请求的插件开始 ---
 # AirConnect 插件及中文语言包
 CONFIG_PACKAGE_luci-app-airconnect=y
@@ -181,8 +176,8 @@ CONFIG_PACKAGE_luci-i18n-airconnect-zh-cn=y
 
 # FileBrowser 插件及中文语言包
 CONFIG_PACKAGE_filebrowser=y
-CONFIG_PACKAGE_luci-app-filebrowser-go=y
-CONFIG_PACKAGE_luci-i18n-filebrowser-go-zh-cn=y
+CONFIG_PACKAGE_luci-app-filebrowser=y
+CONFIG_PACKAGE_luci-i18n-filebrowser-zh-cn=y
 
 # AdGuard Home 插件及中文语言包
 CONFIG_PACKAGE_luci-app-adguardhome=y
@@ -205,6 +200,7 @@ CONFIG_PACKAGE_docker-compose=y
 CONFIG_PACKAGE_luci-lib-docker=y
 CONFIG_PACKAGE_cgroupfs-mount=y
 CONFIG_PACKAGE_tini=y
+CONFIG_PACKAGE_kmod-veth=y
 
 # PassWall2（sing-box/xray 双核心，PassWall 一代的官方继任，选项均与 Makefile 逐一核对过）
 CONFIG_PACKAGE_luci-app-passwall2=y
@@ -228,4 +224,45 @@ CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_V2ray_Plugin=y
 CONFIG_PACKAGE_v2ray-geoip=y
 CONFIG_PACKAGE_v2ray-geosite=y
 CONFIG_PACKAGE_geoview=y
+
+# 移除 bootstrap
+
 # --- 用户请求的插件结束 ---
+
+# 内核驱动模块（用于 DPI 深度报文检测抓包）
+CONFIG_PACKAGE_kmod-oaf=y
+# 用户态服务（用于处理客户端应用记录统计与规则策略）
+CONFIG_PACKAGE_appfilter=y
+# LuCI 网页管理界面
+CONFIG_PACKAGE_luci-app-oaf=y
+# 对应的中文翻译语言包
+CONFIG_PACKAGE_luci-i18n-oaf-zh-cn=y
+
+CONFIG_PACKAGE_luci-theme-bootstrap=n
+
+# DDNS 和 TTYD 和 UPNP 等来自 PLUS 版的其他配置
+CONFIG_PACKAGE_luci-app-ttyd=y
+CONFIG_PACKAGE_luci-app-upnp=y
+CONFIG_PACKAGE_luci-app-ddns=y
+CONFIG_PACKAGE_ddns-scripts-services=y
+CONFIG_PACKAGE_ddns-scripts-aliyun=y
+CONFIG_PACKAGE_ddns-scripts-dnspod=y
+CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+
+CONFIG_PACKAGE_kmod-usb-printer=y
+CONFIG_PACKAGE_p910nd=y
+CONFIG_PACKAGE_luci-app-p910nd=y
+
+CONFIG_PACKAGE_luci-app-openclash=y
+CONFIG_PACKAGE_luci-compat=y
+CONFIG_PACKAGE_dnsmasq-full=y
+CONFIG_PACKAGE_dnsmasq=n
+CONFIG_PACKAGE_dnsmasq_full_nftset=y
+CONFIG_PACKAGE_dnsmasq_full_ipset=n
+
+# Partexp 和 wolplus 相关的包
+CONFIG_PACKAGE_luci-app-partexp=y
+CONFIG_PACKAGE_luci-app-wolplus=y
+
+# AdGuard Home 插件补充依赖
+CONFIG_PACKAGE_adguardhome=y

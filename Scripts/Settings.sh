@@ -18,8 +18,7 @@ apply_sed_to_matches() {
 apply_sed_to_matches "./feeds/luci/collections/" "Makefile" "/attendedsysupgrade/d"
 
 #修改默认主题
-#sed -i "s/luci-theme-bootstrap/luci-theme-$WRT_THEME/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
-#sed -i "s/luci-theme-.*$/luci-theme-bootstrap/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
+sed -i "s/luci-theme-bootstrap/luci-theme-$WRT_THEME/g" $(find ./feeds/luci/collections/ -type f -name "Makefile")
 
 #修改immortalwrt.lan关联IP
 apply_sed_to_matches "./feeds/luci/modules/luci-mod-system/" "flash.js" "s/192\\.168\\.[0-9]*\\.[0-9]*/$WRT_IP/g"
@@ -53,8 +52,8 @@ sed -i "s/hostname='.*'/hostname='$WRT_NAME'/g" "$CFG_FILE"
 #配置文件修改
 echo "CONFIG_PACKAGE_luci=y" >> ./.config
 echo "CONFIG_LUCI_LANG_zh_Hans=y" >> ./.config
-#echo "CONFIG_PACKAGE_luci-theme-$WRT_THEME=y" >> ./.config
-#echo "CONFIG_PACKAGE_luci-app-$WRT_THEME-config=y" >> ./.config
+echo "CONFIG_PACKAGE_luci-theme-$WRT_THEME=y" >> ./.config
+echo "CONFIG_PACKAGE_luci-app-$WRT_THEME-config=y" >> ./.config
 
 #手动调整的插件
 if [ -n "$WRT_PACKAGE" ]; then
@@ -71,26 +70,21 @@ if [[ "${WRT_TARGET^^}" == *"QUALCOMMAX"* ]]; then
 	fi
 fi
 
-
-
 # =========================================================
-# 智能系统调优：优化系统内存保留线 (min_free_kbytes)
-# 防止高负载下 OOM 导致网络中断
+# 智能系统调优：优化内存水位线 (min_free_kbytes)
 # =========================================================
 
 MIN_FREE_VAL=16384
 CONF_FILE="./package/base-files/files/etc/sysctl.conf"
 
-# 提取当前 min_free_kbytes 设置的值
+# 提取当前值（只匹配非注释、行首）
 CURRENT_VAL=$(sed -n 's/^vm\.min_free_kbytes=\([0-9]\+\).*/\1/p' "$CONF_FILE")
 
 if [ -z "$CURRENT_VAL" ]; then
-    # 若没有配置，则增加配置
     echo "" >> "$CONF_FILE"
     echo "vm.min_free_kbytes=$MIN_FREE_VAL" >> "$CONF_FILE"
     echo "Memory patch: value not found, added $MIN_FREE_VAL."
 else
-    # 如果已存在，比较并选择更大的值以确保安全
     if [ "$CURRENT_VAL" -lt "$MIN_FREE_VAL" ]; then
         sed -i "s/^vm\.min_free_kbytes=.*/vm.min_free_kbytes=$MIN_FREE_VAL/" "$CONF_FILE"
         echo "Memory patch: upgraded $CURRENT_VAL -> $MIN_FREE_VAL."

@@ -93,21 +93,12 @@ jobs:
         run: |
           echo "WRT_DATE=$(TZ=UTC-8 date +"%y.%m.%d-%H.%M.%S")" >> $GITHUB_ENV
           echo "WRT_MARK=${GITHUB_REPOSITORY%%/*}" >> $GITHUB_ENV
-          WRT_PROFILE_UPPER=$(echo "${WRT_PROFILE:-PURE}" | tr '[:lower:]' '[:upper:]')
-          case "$WRT_PROFILE_UPPER" in
-            PURE|PLUS) ;;
-            *) echo "Unsupported WRT_PROFILE: $WRT_PROFILE" >&2; exit 1 ;;
-          esac
-          echo "WRT_PROFILE=$WRT_PROFILE_UPPER" >> $GITHUB_ENV
-          if [[ "$WRT_PROFILE_UPPER" == "PLUS" ]]; then
-            echo "WRT_PROFILE_DESC=Plus 版，预装 OpenClash、PassWall2、Docker/Dockerman、AdGuard Home、DDNS、ttyd、UPnP 及分区扩容、网络唤醒等实用插件，刷完即用；启用 AdGuard Home 与代理插件前请先阅读 README 的「PLUS 版使用提示」" >> $GITHUB_ENV
-          else
-            echo "WRT_PROFILE_DESC=纯净版，轻量稳定，仅含基础网络与常用管理插件，扩展插件按需自行安装" >> $GITHUB_ENV
-          fi
+          echo "WRT_PROFILE=PURE" >> $GITHUB_ENV
+          echo "WRT_PROFILE_DESC=定制固件" >> $GITHUB_ENV
           echo "WRT_INFO=${WRT_SOURCE%%/*}" >> $GITHUB_ENV
           echo "WRT_TARGET=$(grep -m 1 -oP '^CONFIG_TARGET_\K[\w]+(?=\=y)' ./Config/$WRT_CONFIG.txt)" >> $GITHUB_ENV
           echo "WRT_WIFI=wifi-yes" >> $GITHUB_ENV
-          echo "WRT_EXTRA_CONFIG=$([[ -f ./Config/GENERAL_AX6600_${WRT_PROFILE_UPPER}.txt ]] && echo ./Config/GENERAL_AX6600_${WRT_PROFILE_UPPER}.txt || true)" >> $GITHUB_ENV
+          echo "WRT_EXTRA_CONFIG=" >> $GITHUB_ENV
           echo "WRT_KVER=none" >> $GITHUB_ENV
           echo "WRT_LIST=none" >> $GITHUB_ENV
 
@@ -124,10 +115,9 @@ jobs:
           fi
 
           # Plus 版补充 PassWall 依赖包 feed（xray/sing-box 等）。
+          echo "src-git passwall_packages https://github.com/Openwrt-Passwall/openwrt-passwall-packages" >> feeds.conf.default
+
           # LuCI 插件本体由 Packages.sh 克隆到 package/，这里不再加 LuCI feed，避免同名包双重定义。
-          if [[ "$WRT_PROFILE" == "PLUS" ]]; then
-            echo "src-git passwall_packages https://github.com/Openwrt-Passwall/openwrt-passwall-packages" >> feeds.conf.default
-          fi
 
       - name: Check Scripts
         run: |
@@ -187,9 +177,7 @@ jobs:
 
           : > "$GITHUB_WORKSPACE/package-versions.txt"
           $GITHUB_WORKSPACE/Scripts/Packages.sh
-          if [[ "$WRT_PROFILE" == "PLUS" && -e ../feeds/passwall_packages/.git ]]; then
-            echo "passwall_packages(feed) Openwrt-Passwall/openwrt-passwall-packages main $(git -C ../feeds/passwall_packages rev-parse --short HEAD)" >> "$GITHUB_WORKSPACE/package-versions.txt"
-          fi
+
           if [ -s "$GITHUB_WORKSPACE/package-versions.txt" ]; then
             {
               echo 'WRT_PKG_INFO<<EOF'
@@ -260,7 +248,7 @@ jobs:
               NAME=$(basename $FILE | cut -d '.' -f 1 | grep -io "\($WRT_TARGET\).*")
               # 去掉恒定的平台前缀（qualcommax-），保留 ipq60xx 及设备型号
               NAME=${NAME#*-}
-              NEW_FILE="King-Sager2333-$WRT_BRANCH-$WRT_PROFILE-$NAME-$WRT_DATE.$EXT"
+              NEW_FILE="King-Sager2333-$WRT_BRANCH-$NAME-$WRT_DATE.$EXT"
               mv -f $FILE ./upload/$NEW_FILE
             done
 
@@ -290,15 +278,15 @@ jobs:
       - name: Release Firmware
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.WRT_CONFIG }}-${{ env.WRT_PROFILE }}-${{ env.WRT_INFO }}-${{ env.WRT_BRANCH }}-${{ env.WRT_DATE }}
+          tag_name: ${{ env.WRT_CONFIG }}-${{ env.WRT_INFO }}-${{ env.WRT_BRANCH }}-${{ env.WRT_DATE }}
           files: ./wrt/upload/*.*
           body: |
             📦 OpenWrt 自动编译固件（AX6600 / IPQ6010）
             ━━━━━━━━━━━━━━━━━━━━━━━
 
             📌 基本信息
-            源码仓库：${{ env.WRT_REPO }}
-            编译分支：${{ env.WRT_BRANCH }}
+            <!-- 源码仓库：${{ env.WRT_REPO }} -->
+            <!-- 编译分支：${{ env.WRT_BRANCH }} -->
             固件版本：${{ env.WRT_PROFILE }}
             版本说明：${{ env.WRT_PROFILE_DESC }}
             提交版本：${{ env.WRT_HASH }}
@@ -330,12 +318,20 @@ jobs:
             WiFi 名称：${{ env.WRT_SSID }}
             WiFi 密码：${{ env.WRT_WORD }}
             ━━━━━━━━━━━━━━━━━━━━━━━
+
+            📶 WiFi 推荐设置（雅典娜三频三 WiFi）
+            - 2.4G（2×2）：信道 11，带宽 20MHz
+            - 5G-1 游戏频段（4×4）：信道 44，带宽 160MHz（无法开启或断流则回退 80MHz）
+            - 5G-2 影音频段（2×2）：信道 149，带宽 80MHz
+            - 通用：地区 US，发射功率 24 dBm，加密 WPA2-PSK（CCMP 算法）
+            ━━━━━━━━━━━━━━━━━━━━━━━
             📥 下载与刷机说明
-            - 本 Release 为 ${{ env.WRT_PROFILE }} 版固件；两个版本分开发布，请从 README 下载入口按需选择
+
             - 首次从原厂固件刷入：选文件名带 factory 的文件
             - 已是 OpenWrt/ImmortalWrt 升级：选文件名带 sysupgrade 的文件
+            - 刷机 / 救砖完整教程：[刷机救砖教程](${{ github.server_url }}/${{ github.repository }}/blob/main/Docs/刷机救砖教程.md)
             - Config-*.txt：本次编译的完整 .config 配置，便于复现或二次定制
-            - Packages-*.txt：外部插件（OpenClash / PassWall2 等）的仓库、分支与 commit 记录（纯净版无外部插件，无此文件）
+
             - sha256sums.txt：固件校验文件，刷机前请先校验下载完整性（方法见 README 刷机前必读）
 
             ⚠️ 风险提示

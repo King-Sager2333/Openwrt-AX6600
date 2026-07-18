@@ -35,7 +35,6 @@ OpenWrt / AX6600 / IPQ6010 / JDCloud RE-CS-02 / NSS / Router Firmware / Cloud Bu
 | **AdGuard Home** (`luci-app-adguardhome`) | `luci-i18n-adguardhome-zh-cn` | 全局广告拦截与隐私保护工具，通过自建 DNS 服务器阻止跟踪器和广告域名。 |
 | **Dockerman** (`luci-app-dockerman`) | `luci-i18n-dockerman-zh-cn` | 可视化 Docker 容器管理工具，方便在路由器上轻松部署和管理 Docker 应用。 |
 | **Argon Theme** (`luci-theme-argon`) | `luci-i18n-argon-config-zh-cn` | 美观且功能丰富的现代化 LuCI 界面主题，附带可视化的主题设置模块。 |
-| **HomeProxy** (`luci-app-homeproxy`) | `luci-i18n-homeproxy-zh-cn` | 新一代代理工具，提供极简的配置页面和极致的性能。 |
 | **OAF** (`luci-app-oaf`) | `luci-i18n-oaf-zh-cn` | 应用过滤插件，可以对特定的App进行控制。 |
 
 ---

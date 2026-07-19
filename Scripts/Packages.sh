@@ -45,11 +45,32 @@ UPDATE_PACKAGE() {
 	elif [[ "$PKG_SPECIAL" == "name" ]]; then
 		mv -f "$REPO_NAME" "$PKG_NAME"
 	fi
+
+	# 修复 athena-led 仓库尚未发布 v2.5.0 Release 的问题
+	if [[ "$PKG_NAME" == "athena-led" ]]; then
+		sed -i 's/PKG_VERSION:=2.5.0/PKG_VERSION:=2.4.0/g' athena-led/Makefile
+		sed -i 's/PKG_VERSION:=2.5.0/PKG_VERSION:=2.4.0/g' luci-app-athena-led/Makefile
+		# 伪造中文语言包以满足编译环境的强制依赖检查 (新版界面已内嵌语言包)
+		cat >> luci-app-athena-led/Makefile <<EOF
+define Package/luci-i18n-athena-led-zh-cn
+	SECTION:=luci
+	CATEGORY:=LuCI
+	TITLE:=Translation for luci-app-athena-led
+	DEPENDS:=+luci-app-athena-led
+	PKGARCH:=all
+endef
+define Package/luci-i18n-athena-led-zh-cn/install
+	\$(INSTALL_DIR) \$(1)/usr/lib
+endef
+\$(eval \$(call BuildPackage,luci-i18n-athena-led-zh-cn))
+EOF
+	fi
 }
 
 # 调用示例
 # UPDATE_PACKAGE "OpenAppFilter" "destan19/OpenAppFilter" "master" "" "custom_name1 custom_name2"
-# UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master" "" "luci-app-appfilter oaf" 这样会把原有的open-app-filter，luci-app-appfilter，oaf相关组件删除，不会出现coremark错误。
+# 这样会把原有的open-app-filter，luci-app-appfilter，oaf相关组件删除，不会出现coremark错误。
+# UPDATE_PACKAGE "open-app-filter" "destan19/OpenAppFilter" "master" "pkg" "luci-app-appfilter oaf"
 
 # UPDATE_PACKAGE "包名" "项目地址" "项目分支" "pkg/name，可选，pkg为从大杂烩中单独提取包名插件；name为重命名为包名"
 UPDATE_PACKAGE "argon" "sbwml/luci-theme-argon" "openwrt-25.12"
@@ -58,13 +79,13 @@ UPDATE_PACKAGE "argon" "sbwml/luci-theme-argon" "openwrt-25.12"
 #UPDATE_PACKAGE "kucat" "sirpdboy/luci-theme-kucat" "master"
 #UPDATE_PACKAGE "kucat-config" "sirpdboy/luci-app-kucat-config" "master"
 
-UPDATE_PACKAGE "homeproxy" "ones20250/homeproxy" "master"
+#UPDATE_PACKAGE "homeproxy" "ones20250/homeproxy" "master"
 #UPDATE_PACKAGE "momo" "nikkinikki-org/OpenWrt-momo" "main"
 #UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main"
-UPDATE_PACKAGE "openclash" "vernesong/OpenClash" "master" "pkg"
+#UPDATE_PACKAGE "openclash" "vernesong/OpenClash" "master" "pkg"
 UPDATE_PACKAGE "passwall2" "Openwrt-Passwall/openwrt-passwall2" "main" "pkg"
 UPDATE_PACKAGE "partexp" "sirpdboy/luci-app-partexp" "main"
-UPDATE_PACKAGE "viking" "ones20250/packages" "main" "" "luci-app-timewol luci-app-wolplus"
+UPDATE_PACKAGE "viking" "ones20250/packages" "main" "pkg" "luci-app-timewol luci-app-wolplus luci-app-wolultra"
 
 #UPDATE_PACKAGE "mosdns" "sbwml/luci-app-mosdns" "v5" "" "v2dat"
 
@@ -81,10 +102,10 @@ UPDATE_PACKAGE "viking" "ones20250/packages" "main" "" "luci-app-timewol luci-ap
 #UPDATE_PACKAGE "qmodem" "FUjr/QModem" "main"
 #UPDATE_PACKAGE "quickfile" "sbwml/luci-app-quickfile" "main"
 #局域网唤醒
-#UPDATE_PACKAGE "viking" "ones20250/packages" "main" "" "luci-app-timewol luci-app-wolplus"
 #UPDATE_PACKAGE "vnt" "lmq8267/luci-app-vnt" "main"
 #雅典娜的led屏
-#UPDATE_PACKAGE "athena-led" "unraveloop/JDC-AX6600-Athena-LED-Controller" "main"
+UPDATE_PACKAGE "athena-led" "unraveloop/JDC-AX6600-Athena-LED-Controller" "main" "pkg"
+UPDATE_PACKAGE "airconnect" "sbwml/luci-app-airconnect" "main" "name"
 
 #更新软件包版本
 UPDATE_VERSION() {

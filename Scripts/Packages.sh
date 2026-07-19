@@ -45,6 +45,12 @@ UPDATE_PACKAGE() {
 	elif [[ "$PKG_SPECIAL" == "name" ]]; then
 		mv -f "$REPO_NAME" "$PKG_NAME"
 	fi
+
+	# 修复 athena-led 仓库尚未发布 v2.5.0 Release 的问题
+	if [[ "$PKG_NAME" == "athena-led" ]]; then
+		sed -i 's/PKG_VERSION:=2.5.0/PKG_VERSION:=2.4.0/g' athena-led/Makefile
+		sed -i 's/PKG_VERSION:=2.5.0/PKG_VERSION:=2.4.0/g' luci-app-athena-led/Makefile
+	fi
 }
 
 # 调用示例

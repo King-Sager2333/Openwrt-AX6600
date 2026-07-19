@@ -186,7 +186,7 @@ CONFIG_PACKAGE_v2ray-geosite=y
 CONFIG_PACKAGE_geoview=y
 
 # HomeProxy 与 WireGuard
-CONFIG_PACKAGE_kmod-wireguard=y
+CONFIG_PACKAGE_kmod-wireguard=n
 
 # AdGuard Home
 CONFIG_PACKAGE_adguardhome=y
@@ -209,7 +209,7 @@ CONFIG_PACKAGE_kmod-veth=y
 # 常用网络功能插件
 CONFIG_PACKAGE_luci-app-upnp=y
 CONFIG_PACKAGE_luci-app-ttyd=y
-CONFIG_PACKAGE_luci-app-arpbind=y
+CONFIG_PACKAGE_luci-app-arpbind=n
 CONFIG_PACKAGE_luci-app-autoreboot=y
 CONFIG_PACKAGE_luci-app-wolultra=y
 CONFIG_PACKAGE_luci-app-sentinel=y

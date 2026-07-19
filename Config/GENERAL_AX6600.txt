@@ -80,7 +80,20 @@ CONFIG_PACKAGE_block-mount=y
 CONFIG_PACKAGE_automount=y
 CONFIG_PACKAGE_luci-app-mountd=y
 CONFIG_PACKAGE_luci-app-partexp=y
-CONFIG_PACKAGE_luci-app-samba4=y
+
+# 移除大型且不常用的组件以加快编译
+CONFIG_PACKAGE_luci-app-samba4=n
+CONFIG_PACKAGE_samba4-server=n
+CONFIG_PACKAGE_luci-app-tailscale=n
+CONFIG_PACKAGE_tailscale=n
+CONFIG_PACKAGE_luci-app-zerotier=n
+CONFIG_PACKAGE_zerotier=n
+CONFIG_PACKAGE_luci-app-alist=n
+CONFIG_PACKAGE_alist=n
+CONFIG_PACKAGE_luci-app-mosdns=n
+CONFIG_PACKAGE_mosdns=n
+CONFIG_PACKAGE_luci-app-smartdns=n
+CONFIG_PACKAGE_smartdns=n
 
 # 磁盘与分区控制工具
 CONFIG_PACKAGE_lsblk=y
@@ -159,13 +172,15 @@ CONFIG_PACKAGE_luci-i18n-passwall2-zh-cn=y
 CONFIG_PACKAGE_luci-app-passwall2_Basic_Core_All=y
 CONFIG_PACKAGE_luci-app-passwall2_Nftables_Transparent_Proxy=y
 CONFIG_PACKAGE_luci-app-passwall2_Iptables_Transparent_Proxy=n
-CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_Haproxy=y
-CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_Hysteria=y
-CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_NaiveProxy=y
-CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_Shadowsocks_Rust_Client=y
-CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_ShadowsocksR_Libev_Client=y
-CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_Simple_Obfs=y
-CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_V2ray_Plugin=y
+CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_Xray=y
+CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_SingBox=y
+CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_Haproxy=n
+CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_Hysteria=n
+CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_NaiveProxy=n
+CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_Shadowsocks_Rust_Client=n
+CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_ShadowsocksR_Libev_Client=n
+CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_Simple_Obfs=n
+CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_V2ray_Plugin=n
 CONFIG_PACKAGE_v2ray-geoip=y
 CONFIG_PACKAGE_v2ray-geosite=y
 CONFIG_PACKAGE_geoview=y

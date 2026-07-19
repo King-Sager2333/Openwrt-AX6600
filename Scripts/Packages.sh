@@ -51,8 +51,19 @@ UPDATE_PACKAGE() {
 		sed -i 's/PKG_VERSION:=2.5.0/PKG_VERSION:=2.4.0/g' athena-led/Makefile
 		sed -i 's/PKG_VERSION:=2.5.0/PKG_VERSION:=2.4.0/g' luci-app-athena-led/Makefile
 		# 伪造中文语言包以满足编译环境的强制依赖检查 (新版界面已内嵌语言包)
-		sed -i '/\$(eval \$(call BuildPackage,\$(PKG_NAME)))/i\define Package/luci-i18n-athena-led-zh-cn\n\tSECTION:=luci\n\tCATEGORY:=LuCI\n\tTITLE:=Translation for luci-app-athena-led\n\tDEPENDS:=+luci-app-athena-led\n\tPKGARCH:=all\nendef\n\ndefine Package/luci-i18n-athena-led-zh-cn/install\n\t$(INSTALL_DIR) $(1)/usr/lib\nendef\n' luci-app-athena-led/Makefile
-		sed -i '/\$(eval \$(call BuildPackage,\$(PKG_NAME)))/a \$(eval \$(call BuildPackage,luci-i18n-athena-led-zh-cn))' luci-app-athena-led/Makefile
+		cat >> luci-app-athena-led/Makefile <<EOF
+define Package/luci-i18n-athena-led-zh-cn
+	SECTION:=luci
+	CATEGORY:=LuCI
+	TITLE:=Translation for luci-app-athena-led
+	DEPENDS:=+luci-app-athena-led
+	PKGARCH:=all
+endef
+define Package/luci-i18n-athena-led-zh-cn/install
+	\$(INSTALL_DIR) \$(1)/usr/lib
+endef
+\$(eval \$(call BuildPackage,luci-i18n-athena-led-zh-cn))
+EOF
 	fi
 }
 

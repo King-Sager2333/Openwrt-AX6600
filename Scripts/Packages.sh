@@ -42,6 +42,9 @@ UPDATE_PACKAGE() {
 	if [[ "$PKG_SPECIAL" == "pkg" ]]; then
 		find "./$REPO_NAME"/*/ -maxdepth 3 -type d -iname "*$PKG_NAME*" -prune -exec cp -rf {} ./ \;
 		rm -rf "./$REPO_NAME/"
+	elif [[ "$PKG_SPECIAL" == "extract_all" ]]; then
+		cp -rf ./"$REPO_NAME"/*/ ./
+		rm -rf "./$REPO_NAME/"
 	elif [[ "$PKG_SPECIAL" == "name" ]]; then
 		mv -f "$REPO_NAME" "$PKG_NAME"
 	fi
@@ -104,7 +107,7 @@ UPDATE_PACKAGE "viking" "ones20250/packages" "main" "pkg" "luci-app-timewol luci
 #局域网唤醒
 #UPDATE_PACKAGE "vnt" "lmq8267/luci-app-vnt" "main"
 #雅典娜的led屏
-UPDATE_PACKAGE "athena-led" "unraveloop/JDC-AX6600-Athena-LED-Controller" "main" "pkg" "luci-app-athena-led"
+UPDATE_PACKAGE "athena-led" "unraveloop/JDC-AX6600-Athena-LED-Controller" "main" "extract_all" "luci-app-athena-led"
 UPDATE_PACKAGE "airconnect" "sbwml/luci-app-airconnect" "main" "name"
 
 #更新软件包版本

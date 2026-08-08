@@ -180,7 +180,7 @@ CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_NaiveProxy=n
 CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_Shadowsocks_Rust_Client=n
 CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_ShadowsocksR_Libev_Client=n
 CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_Simple_Obfs=n
-CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_V2ray_Plugin=n
+CONFIG_PACKAGE_luci-app-passwall2_INCLUDE_V2ray_Plugin=y
 CONFIG_PACKAGE_v2ray-geoip=y
 CONFIG_PACKAGE_v2ray-geosite=y
 CONFIG_PACKAGE_geoview=y
@@ -258,12 +258,6 @@ CONFIG_PACKAGE_dmesg=y
 CONFIG_PACKAGE_iperf3=y
 CONFIG_PACKAGE_coremark=n
 
-# Netdata 实时系统监控仪表盘及中文语言包
-CONFIG_PACKAGE_netdata=y
-CONFIG_PACKAGE_luci-app-netdata=y
-CONFIG_PACKAGE_luci-i18n-netdata-zh-cn=y
-
-
 # 无线网络控制增强
 CONFIG_PACKAGE_iwinfo=y
 CONFIG_PACKAGE_luci-app-wireless-regdb=y
@@ -272,7 +266,7 @@ CONFIG_PACKAGE_luci-app-wireless-regdb=y
 # 9. 硬件外设扩展驱动 (点阵屏 / 声卡 / 打印机)
 # ==============================================================================
 # 雅典娜 LED 点阵屏控制
-CONFIG_PACKAGE_luci-app-athena-led=y
+CONFIG_PACKAGE_athena-led=y
 
 # 网络打印机服务
 CONFIG_PACKAGE_kmod-usb-printer=y

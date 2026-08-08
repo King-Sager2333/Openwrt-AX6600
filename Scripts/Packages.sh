@@ -104,7 +104,7 @@ UPDATE_PACKAGE "viking" "ones20250/packages" "main" "pkg" "luci-app-timewol luci
 #局域网唤醒
 #UPDATE_PACKAGE "vnt" "lmq8267/luci-app-vnt" "main"
 #雅典娜的led屏
-UPDATE_PACKAGE "athena-led" "unraveloop/JDC-AX6600-Athena-LED-Controller" "main" "pkg"
+UPDATE_PACKAGE "athena-led" "unraveloop/JDC-AX6600-Athena-LED-Controller" "main" "pkg" "luci-app-athena-led"
 UPDATE_PACKAGE "airconnect" "sbwml/luci-app-airconnect" "main" "name"
 
 #更新软件包版本

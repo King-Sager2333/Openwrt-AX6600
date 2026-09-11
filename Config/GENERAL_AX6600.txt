@@ -265,8 +265,10 @@ CONFIG_PACKAGE_luci-app-wireless-regdb=y
 # ==============================================================================
 # 9. 硬件外设扩展驱动 (点阵屏 / 声卡 / 打印机)
 # ==============================================================================
-# 雅典娜 LED 点阵屏控制
+# 雅典娜 LED 点阵屏控制 (核心驱动程序与后台服务 + LuCI 用户界面 + 中文语言包)
 CONFIG_PACKAGE_athena-led=y
+CONFIG_PACKAGE_luci-app-athena-led=y
+CONFIG_PACKAGE_luci-i18n-athena-led-zh-cn=y
 
 # 网络打印机服务
 CONFIG_PACKAGE_kmod-usb-printer=y

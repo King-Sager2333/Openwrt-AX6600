@@ -54,3 +54,10 @@ if [ -f "$RUST_FILE" ]; then
 
 	cd $PKG_PATH && echo "rust has been fixed!"
 fi
+
+#清理源码自带的旧版 athena-led 插件，避免与新版发生文件覆盖冲突
+if [ -d "./emortal/luci-app-athena-led" ]; then
+	echo " "
+	rm -rf ./emortal/luci-app-athena-led
+	echo "builtin luci-app-athena-led has been removed!"
+fi
